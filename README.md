@@ -1,30 +1,23 @@
 # Python Academy
 
-A beginner-friendly, non-AI Python learning app. Lessons, quizzes and progress are built into the app.
+A beginner-friendly, non-AI Python learning app. It teaches with structured lessons, knowledge checks, practice and an in-browser Python playground.
 
-## Current features
-- A 12-lesson beginner Python learning path.
-- Lessons unlock in order: pass the quick knowledge check to complete a lesson and unlock the next.
-- **Resume learning:** the app remembers the last lesson and completed lessons in browser local storage.
-- Course progress indicator and lesson overview.
-- A starter practice challenge.
-- Responsive layout for phones, tablets and desktop.
-- Installable web-app manifest.
+## Features
+- 12 ordered beginner topics, with lesson explanations and quizzes.
+- Sequential lesson unlocking: pass the knowledge check before completing a topic and unlocking the next.
+- Resume learning and local progress saved in the browser.
+- In-browser Python execution powered by Pyodide (Python compiled to WebAssembly).
+- Practice area with editable code, output, hints and a solution.
+- Installable progressive web app shell with offline caching of the lesson interface and static assets.
 
 ## Run locally
-Open `index.html` in a modern browser, or serve this folder with a local static web server. No AI service, account or API key is required.
+Serve this folder with a local web server (service workers and PWA installation require HTTPS or localhost). Opening index.html directly with file:// will not enable the service worker.
+
+## Python engine and internet
+The lesson interface and cached static assets can be available offline after the first successful visit. The Python engine is loaded from the Pyodide CDN on first execution, so the first code run requires an internet connection. This version does not yet cache the full Python runtime for offline code execution.
 
 ## Progress storage
-Progress is saved in the browser on the current device using localStorage. Clearing browser site data or switching devices/browsers can remove or separate that progress. Cloud sync and accounts are not included yet.
+Progress is stored in localStorage on the current browser/device. It is not synchronized between devices and may be cleared if browser data is removed.
 
-## Roadmap
-- Add more lessons and exercises to each topic.
-- Add a real Python code runner.
-- Add optional accounts and cloud progress sync.
-- Add offline lesson caching and accessibility improvements.
-
-## Project files
-- `index.html` — app structure
-- `styles.css` — responsive visual design
-- `app.js` — lesson content, navigation, quizzes and saved progress
-- `manifest.json` — installable app metadata
+## Current scope
+This is a learning MVP, not yet a complete reference for every Python feature. Future improvements can add deeper sub-lessons, more exercises, accessibility checks and automated browser testing.
