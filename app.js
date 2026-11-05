@@ -11,7 +11,9 @@ const lessons = [
 {title:"Dictionaries",desc:"Store related information as key-value pairs.",intro:"A dictionary stores information using keys and values. It is useful when each piece of information has a label.",sections:[["Create a dictionary","Use curly braces with key: value pairs. Keys are used to look up their values."],["Read and update values","Access a value with its key, and assign a new value to update it."]],code:'person = {"name": "Asta", "age": 15}\nprint(person["name"])',explain:"The key name is used to retrieve the value Asta.",question:"Which brackets create a dictionary?",options:["[ ]","( )","{ }"],answer:2},
 {title:"Files and error handling",desc:"Read and write files and respond to common errors.",intro:"Programs can save information in files. Error handling helps your program respond when something goes wrong.",sections:[["Working with files","The with open(...) pattern manages a file for you and closes it when the block finishes."],["Handling errors","Use try and except to handle errors that you expect might happen, such as a missing file or invalid number."]],code:'try:\n    number = int("hello")\nexcept ValueError:\n    print("Please enter a valid number")',explain:"The conversion raises a ValueError, so the except block runs instead of stopping the program unexpectedly.",question:"Which keyword starts an error-handling block?",options:["try","check","error"],answer:0},
 {title:"Object-oriented Python",desc:"Learn classes, objects, attributes and methods.",intro:"Object-oriented programming groups related data and behaviour together. A class is a blueprint used to create objects.",sections:[["Classes and objects","A class defines the structure and behaviour that its objects can have."],["Attributes and methods","Attributes store information about an object. Methods are functions defined inside a class."]],code:'class Pet:\n    def __init__(self, name):\n        self.name = name\n\nmy_pet = Pet("Milo")\nprint(my_pet.name)',explain:"Pet is a class. my_pet is an object created from it, and name is an attribute.",question:"What is a class?",options:["A blueprint for creating objects","A type of loop","A file name"],answer:0}
-];
+]; 
+if (window.pythonAcademyExtendedLessons) lessons.push(...window.pythonAcademyExtendedLessons);
+if (window.pythonAcademyExtendedExtras) topicExtras.push(...window.pythonAcademyExtendedExtras);
 const STORAGE_KEY = "pythonAcademyProgressV1";
 let state = loadState();
 let currentLesson = 0;
@@ -36,6 +38,7 @@ function renderLessonLists(){
  const home=document.getElementById("homeLessons"),course=document.getElementById("courseList");home.innerHTML="";course.innerHTML="";
  lessons.forEach((lesson,i)=>{
   const done=state.completed.includes(i),unlocked=isUnlocked(i);
+  if(i>=12)return;
   const card=document.createElement("button");card.className="lesson-card";card.disabled=!unlocked;card.innerHTML='<span class="lesson-index">'+(done?'✓ COMPLETED':'LESSON '+String(i+1).padStart(2,'0'))+'</span><b>'+lesson.title+'</b><small>'+ (done?'Review lesson':unlocked?'Ready to learn':'Complete the previous lesson first')+'</small>';
   card.addEventListener("click",()=>openLesson(i));home.appendChild(card);
   const row=document.createElement("div");row.className="course-row"+(!unlocked?" locked":"");row.innerHTML='<span class="num">'+(done?'✓':String(i+1).padStart(2,'0'))+'</span><div class="course-info"><b>'+lesson.title+'</b><p>'+lesson.desc+'</p></div><button '+(!unlocked?'disabled':'')+'>'+(done?'Review':unlocked?'Start lesson':'Locked')+'</button>';
@@ -54,13 +57,14 @@ function renderCurriculum(){
   const list=document.createElement("ol");list.className="curriculum-topics";
   level.topics.forEach((topic,topicIndex)=>{
    const item=document.createElement("li");const name=document.createElement("span");name.textContent=topic;const state=document.createElement("small");
-   if(levelIndex===0&&topicIndex<lessons.length){state.textContent="Interactive lesson";state.className="topic-available";}
-   else{state.textContent=levelIndex===0?"Planned":"Upcoming";state.className="topic-upcoming";}
+   const lessonIndex=window.pythonCurriculum.slice(0,levelIndex).reduce((sum,item)=>sum+item.topics.length,0)+topicIndex;
+   if(lessonIndex<lessons.length){state.textContent=isUnlocked(lessonIndex)?"Interactive lesson":"Locked until previous lesson";state.className=isUnlocked(lessonIndex)?"topic-available":"topic-upcoming";}
+   else{state.textContent="Not yet built";state.className="topic-upcoming";}
    item.append(name,state);list.appendChild(item);
   });
   card.appendChild(list);
   const foot=document.createElement("p");foot.className="curriculum-foot";
-  foot.textContent=levelIndex===0?"The first 12 lessons are ready to study. Complete each lesson to unlock the next.":"This level is included in the course roadmap; its interactive lessons will be added after the earlier level is completed.";
+  foot.textContent=level.topics.length+" lessons in this level. Complete each lesson, its exercises and knowledge check to unlock the next topic.";
   card.appendChild(foot);host.appendChild(card);
  });
 }
@@ -68,7 +72,7 @@ function showView(name){document.querySelectorAll(".view").forEach(v=>v.classLis
 function openLesson(index){
  if(!isUnlocked(index))return;
  currentLesson=index;selectedAnswer=null;answerCorrect=false;taskChecks=(state.practiceDone[index]||[]).slice();state.lastLesson=index;saveState();showView("lesson");
- const l=lessons[index];document.getElementById("lessonNumber").textContent="LESSON "+String(index+1).padStart(2,"0");document.getElementById("lessonTitle").textContent=l.title;document.getElementById("lessonIntro").textContent=l.intro;
+ const l=lessons[index];document.getElementById("lessonNumber").textContent="LESSON "+String(index+1).padStart(2,"0");const levelInfo=window.pythonCurriculum.find((level,li)=>{const start=window.pythonCurriculum.slice(0,li).reduce((sum,item)=>sum+item.topics.length,0);return index>=start&&index<start+level.topics.length});document.querySelector(".lesson-meta span:nth-child(3)").textContent=levelInfo?levelInfo.level.toUpperCase():"PYTHON";document.getElementById("lessonTitle").textContent=l.title;document.getElementById("lessonIntro").textContent=l.intro;
  let body="";l.sections.forEach(s=>body+='<h2>'+s[0]+'</h2><p>'+s[1]+'</p>');body+='<pre class="code-block"><code>'+escapeHtml(l.code)+'</code></pre><p class="callout">'+l.explain+'</p><p>Take a moment to type the example yourself and change a value to see what happens.</p>';document.getElementById("lessonBody").innerHTML=body;renderTopicExercises(index);document.getElementById("lessonCode").value=l.code;document.getElementById("lessonOutput").textContent="Your output will appear here.";
  document.getElementById("quizQuestion").textContent=l.question;const opts=document.getElementById("quizOptions");opts.innerHTML="";
  l.options.forEach((o,i)=>{const b=document.createElement("button");b.className="quiz-option";b.textContent=o;b.addEventListener("click",()=>{selectedAnswer=i;answerCorrect=false;opts.querySelectorAll("button").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");document.getElementById("quizFeedback").textContent="";updateTaskGate()});opts.appendChild(b)});
