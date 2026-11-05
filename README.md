@@ -3,7 +3,7 @@
 A beginner-friendly, non-AI Python learning app. It teaches with structured lessons, knowledge checks, practice and an in-browser Python playground.
 
 ## Features
-- 12 ordered beginner topics, with lesson explanations and quizzes.
+- 12 ordered beginner topics, each with extra explanations, three hands-on exercises and a knowledge check.\n- A topic unlocks only after the learner passes its quiz and marks all three exercises attempted.
 - Sequential lesson unlocking: pass the knowledge check before completing a topic and unlocking the next.
 - Resume learning and local progress saved in the browser.
 - In-browser Python execution powered by Pyodide (Python compiled to WebAssembly).
