@@ -12,7 +12,7 @@ const lessons = [
 {title:"Files and error handling",desc:"Read and write files and respond to common errors.",intro:"Programs can save information in files. Error handling helps your program respond when something goes wrong.",sections:[["Working with files","The with open(...) pattern manages a file for you and closes it when the block finishes."],["Handling errors","Use try and except to handle errors that you expect might happen, such as a missing file or invalid number."]],code:'try:\n    number = int("hello")\nexcept ValueError:\n    print("Please enter a valid number")',explain:"The conversion raises a ValueError, so the except block runs instead of stopping the program unexpectedly.",question:"Which keyword starts an error-handling block?",options:["try","check","error"],answer:0},
 {title:"Object-oriented Python",desc:"Learn classes, objects, attributes and methods.",intro:"Object-oriented programming groups related data and behaviour together. A class is a blueprint used to create objects.",sections:[["Classes and objects","A class defines the structure and behaviour that its objects can have."],["Attributes and methods","Attributes store information about an object. Methods are functions defined inside a class."]],code:'class Pet:\n    def __init__(self, name):\n        self.name = name\n\nmy_pet = Pet("Milo")\nprint(my_pet.name)',explain:"Pet is a class. my_pet is an object created from it, and name is an attribute.",question:"What is a class?",options:["A blueprint for creating objects","A type of loop","A file name"],answer:0}
 ];
-const STORAGE_KEY = "pythonAcademyProgressV2";
+const STORAGE_KEY = "pythonAcademyProgressV1";
 let state = loadState();
 let currentLesson = 0;
 let selectedAnswer = null;
