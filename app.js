@@ -42,6 +42,28 @@ function renderLessonLists(){
   row.querySelector("button").addEventListener("click",()=>openLesson(i));course.appendChild(row);
  });
 }
+function renderCurriculum(){
+ const host=document.getElementById("curriculumLevels");
+ if(!host||!window.pythonCurriculum)return;
+ host.innerHTML="";
+ window.pythonCurriculum.forEach((level,levelIndex)=>{
+  const card=document.createElement("section");card.className="curriculum-card";
+  const head=document.createElement("div");head.className="curriculum-head";
+  const copy=document.createElement("div");const title=document.createElement("h2");title.textContent=(levelIndex+1)+". "+level.level;const subtitle=document.createElement("p");subtitle.textContent=level.subtitle;copy.append(title,subtitle);
+  const badge=document.createElement("span");badge.className="curriculum-status"+(levelIndex===0?" available":"");badge.textContent=level.status;head.append(copy,badge);card.appendChild(head);
+  const list=document.createElement("ol");list.className="curriculum-topics";
+  level.topics.forEach((topic,topicIndex)=>{
+   const item=document.createElement("li");const name=document.createElement("span");name.textContent=topic;const state=document.createElement("small");
+   if(levelIndex===0&&topicIndex<lessons.length){state.textContent="Interactive lesson";state.className="topic-available";}
+   else{state.textContent=levelIndex===0?"Planned":"Upcoming";state.className="topic-upcoming";}
+   item.append(name,state);list.appendChild(item);
+  });
+  card.appendChild(list);
+  const foot=document.createElement("p");foot.className="curriculum-foot";
+  foot.textContent=levelIndex===0?"The first 12 lessons are ready to study. Complete each lesson to unlock the next.":"This level is included in the course roadmap; its interactive lessons will be added after the earlier level is completed.";
+  card.appendChild(foot);host.appendChild(card);
+ });
+}
 function showView(name){document.querySelectorAll(".view").forEach(v=>v.classList.add("hidden"));document.getElementById(name+"View").classList.remove("hidden");document.querySelectorAll(".nav-item").forEach(b=>b.classList.toggle("active",b.dataset.view===name));document.getElementById("sidebar").classList.remove("open");}
 function openLesson(index){
  if(!isUnlocked(index))return;
@@ -82,6 +104,7 @@ document.getElementById("completeLesson").addEventListener("click",()=>{if(!stat
 document.getElementById("showHint").addEventListener("click",()=>document.getElementById("practiceHint").classList.toggle("hidden"));
 document.getElementById("showSolution").addEventListener("click",()=>document.getElementById("practiceSolution").classList.toggle("hidden"));
 document.getElementById("menuBtn").addEventListener("click",()=>document.getElementById("sidebar").classList.toggle("open"));
+renderCurriculum();
 renderProgress();
 
 // Browser Python runtime: Pyodide is downloaded only when the learner first runs code.
