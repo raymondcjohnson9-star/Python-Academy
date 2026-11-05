@@ -20,7 +20,7 @@ let currentLesson = 0;
 let selectedAnswer = null;
 let answerCorrect = false;
 let taskChecks = [];
-function loadState(){try{const s=JSON.parse(localStorage.getItem(STORAGE_KEY))||{};return {completed:Array.isArray(s.completed)?s.completed:[],lastLesson:Number.isInteger(s.lastLesson)?s.lastLesson:0,practiceDone:s.practiceDone||{},workflowDone:s.workflowDone||{}}}catch{return {completed:[],lastLesson:0,practiceDone:{}}}}
+function loadState(){try{const s=JSON.parse(localStorage.getItem(STORAGE_KEY))||{};return {completed:Array.isArray(s.completed)?s.completed:[],lastLesson:Number.isInteger(s.lastLesson)?s.lastLesson:0,practiceDone:s.practiceDone||{},workflowDone:s.workflowDone||{}}}catch{return {completed:[],lastLesson:0,practiceDone:{},workflowDone:{}}}}
 function saveState(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));renderProgress()}
 function isUnlocked(index){return index===0||state.completed.includes(index-1)}
 function firstIncomplete(){return lessons.findIndex((_,i)=>!state.completed.includes(i))}
@@ -68,7 +68,7 @@ function renderWorkflows(){
   flow.steps.forEach((step,i)=>{
    const li=document.createElement("li");li.className="workflow-step";
    const label=document.createElement("label");const input=document.createElement("input");input.type="checkbox";input.checked=!!checks[i];
-   const content=document.createElement("span");const strong=document.createElement("b");strong.textContent=(i+1)+". "+step.title;const detail=document.createElement("span");detail.className="workflow-detail";detail.textContent=step.detail;const example=document.createElement("span");example.className="workflow-example";example.textContent=step.example;content.append(strong,detail,example);label.append(input,content);li.append(label);list.append(li);
+   const content=document.createElement("span");const strong=document.createElement("b");strong.textContent=(i+1)+". "+step.title;const detail=document.createElement("span");detail.className="workflow-detail";detail.textContent=step.detail;const example=document.createElement("span");example.className="workflow-example";example.textContent=step.example;content.append(strong,detail,example);label.append(input,content);li.append(label);
    input.addEventListener("change",()=>{const current=(state.workflowDone[flow.id]||[]).slice();current[i]=input.checked;state.workflowDone[flow.id]=current;saveState();renderWorkflows()});
    list.append(li);
   });
