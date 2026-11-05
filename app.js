@@ -20,12 +20,13 @@ let currentLesson = 0;
 let selectedAnswer = null;
 let answerCorrect = false;
 let taskChecks = [];
-function loadState(){try{const s=JSON.parse(localStorage.getItem(STORAGE_KEY))||{};return {completed:Array.isArray(s.completed)?s.completed:[],lastLesson:Number.isInteger(s.lastLesson)?s.lastLesson:0,practiceDone:s.practiceDone||{}}}catch{return {completed:[],lastLesson:0,practiceDone:{}}}}
+function loadState(){try{const s=JSON.parse(localStorage.getItem(STORAGE_KEY))||{};return {completed:Array.isArray(s.completed)?s.completed:[],lastLesson:Number.isInteger(s.lastLesson)?s.lastLesson:0,practiceDone:s.practiceDone||{},workflowDone:s.workflowDone||{}}}catch{return {completed:[],lastLesson:0,practiceDone:{}}}}
 function saveState(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));renderProgress()}
 function isUnlocked(index){return index===0||state.completed.includes(index-1)}
 function firstIncomplete(){return lessons.findIndex((_,i)=>!state.completed.includes(i))}
 function resumeIndex(){const first=firstIncomplete();return first===-1?lessons.length-1:Math.min(Math.max(state.lastLesson||0,0),first)}
 function renderProgress(){
+ renderWorkflows();
  const done=state.completed.length,pct=Math.round(done/lessons.length*100),next=resumeIndex();
  document.getElementById("completedCount").textContent=done+" of "+lessons.length+" lessons completed";
  document.getElementById("percentLabel").textContent=pct+"%";document.getElementById("progressLabel").textContent=pct+"% complete";document.getElementById("progressBar").style.width=pct+"%";
@@ -48,6 +49,37 @@ function renderLessonLists(){
   row.querySelector("button").addEventListener("click",()=>openLesson(i));course.appendChild(row);
  });
 }
+
+function renderWorkflows(){
+ const host=document.getElementById("workflowList"),summary=document.getElementById("workflowSummary");
+ if(!host||!window.pythonAcademyWorkflows)return;
+ host.innerHTML="";
+ let total=0,done=0;
+ window.pythonAcademyWorkflows.forEach(flow=>{
+  const checks=state.workflowDone[flow.id]||[];
+  total+=flow.steps.length;done+=checks.filter(Boolean).length;
+  const card=document.createElement("article");card.className="workflow-card";
+  const head=document.createElement("div");head.className="workflow-card-head";
+  const copy=document.createElement("div");const category=document.createElement("span");category.className="workflow-category";category.textContent=flow.category;
+  const title=document.createElement("h2");title.textContent=flow.title;const desc=document.createElement("p");desc.textContent=flow.description;copy.append(category,title,desc);
+  const progress=document.createElement("span");progress.className="workflow-count";progress.textContent=checks.filter(Boolean).length+" / "+flow.steps.length;head.append(copy,progress);card.append(head);
+  const track=document.createElement("div");track.className="progress-track";const fill=document.createElement("div");fill.style.width=(checks.filter(Boolean).length/flow.steps.length*100)+"%";track.append(fill);card.append(track);
+  const list=document.createElement("ol");list.className="workflow-steps";
+  flow.steps.forEach((step,i)=>{
+   const li=document.createElement("li");li.className="workflow-step";
+   const label=document.createElement("label");const input=document.createElement("input");input.type="checkbox";input.checked=!!checks[i];
+   const content=document.createElement("span");const strong=document.createElement("b");strong.textContent=(i+1)+". "+step.title;const detail=document.createElement("span");detail.className="workflow-detail";detail.textContent=step.detail;const example=document.createElement("span");example.className="workflow-example";example.textContent=step.example;content.append(strong,detail,example);label.append(input,content);li.append(label);list.append(li);
+   input.addEventListener("change",()=>{const current=(state.workflowDone[flow.id]||[]).slice();current[i]=input.checked;state.workflowDone[flow.id]=current;saveState();renderWorkflows()});
+   list.append(li);
+  });
+  card.append(list);
+  const reset=document.createElement("button");reset.className="secondary-btn workflow-reset";reset.textContent="Reset workflow";reset.addEventListener("click",()=>{state.workflowDone[flow.id]=[];saveState();renderWorkflows()});card.append(reset);
+  host.append(card);
+ });
+ const pct=total?Math.round(done/total*100):0;
+ summary.innerHTML='<div class="workflow-summary-top"><b>'+done+' of '+total+' workflow steps completed</b><strong>'+pct+'%</strong></div><div class="progress-track"><div style="width:'+pct+'%"></div></div><p>Complete the steps at your own pace. Workflows are separate from your course lesson progress.</p>';
+}
+
 function renderCurriculum(){
  const host=document.getElementById("curriculumLevels");
  if(!host||!window.pythonCurriculum)return;
