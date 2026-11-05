@@ -10,6 +10,7 @@ A beginner-friendly, non-AI Python learning app. It teaches with structured less
 - Resume learning and local progress saved in the browser.
 - In-browser Python execution powered by Pyodide (Python compiled to WebAssembly).
 - Practice area with editable code, output, hints and a solution.
+- Six guided workflows: three learning routines and three real-world coding routines for project planning, debugging and finishing projects. Workflow checklists save separately from lesson progress.
 - Installable progressive web app shell with offline caching of the lesson interface and static assets.
 
 ## Run locally
