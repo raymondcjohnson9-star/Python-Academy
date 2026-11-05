@@ -10,3 +10,9 @@
 .runner-actions{display:flex;align-items:center;gap:13px;flex-wrap:wrap;margin:12px 0}
 .runner-output{min-height:58px;white-space:pre-wrap;overflow-wrap:anywhere;background:#f1f5f2;border:1px solid var(--line);border-radius:8px;padding:13px;color:#20372a;font:12px/1.6 ui-monospace,monospace}
 button:disabled{opacity:.55;cursor:not-allowed}
+
+.topic-practice{margin-top:28px;padding:19px;background:#f0f6f1;border:1px solid #dce9df;border-radius:12px}
+.topic-practice h2{margin:7px 0}
+.task-item{display:flex;align-items:flex-start;gap:10px;background:#fff;border:1px solid #e2eae4;border-radius:8px;padding:12px;margin:8px 0;font-size:12px;line-height:1.5;cursor:pointer}
+.task-item input{accent-color:#176b48;margin-top:2px;flex-shrink:0}
+.task-progress{font-size:11px;font-weight:700;color:#176b48}
