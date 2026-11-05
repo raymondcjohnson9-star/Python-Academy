@@ -1,4 +1,4 @@
-name: Python Academy Build
+name: Python Academy Android Build
 
 on:
   push:
@@ -11,8 +11,8 @@ permissions:
   contents: read
 
 jobs:
-  validate:
-    name: Validate app
+  android-debug:
+    name: Build Android debug APK
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -22,46 +22,51 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
+          cache: "npm"
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: sdkmanager "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Install JavaScript dependencies
+        run: npm install --no-audit --no-fund
 
       - name: Check JavaScript syntax
         run: |
-          for file in app.js topic-extras.js curriculum.js extended-lessons.js workflows.js service-worker.js; do
-            echo "Checking $file"
+          for file in app.js topic-extras.js curriculum.js extended-lessons.js workflows.js service-worker.js scripts/prepare-web.mjs; do
             node --check "$file"
           done
 
-      - name: Validate JSON files
-        run: |
-          node -e "JSON.parse(require('fs').readFileSync('manifest.json', 'utf8')); console.log('manifest.json is valid')"
+      - name: Validate app manifest
+        run: node -e "JSON.parse(require('fs').readFileSync('manifest.json', 'utf8')); console.log('manifest.json is valid')"
 
-      - name: Check required app files
-        run: |
-          test -f index.html
-          test -f styles.css
-          test -f app.js
-          test -f topic-extras.js
-          test -f curriculum.js
-          test -f extended-lessons.js
-          test -f workflows.js
-          test -f service-worker.js
-          echo "All required app files are present"
+      - name: Prepare web assets
+        run: npm run build
 
-      - name: Verify app scripts are loaded
+      - name: Generate Android project
+        run: npx cap add android
+
+      - name: Sync Capacitor assets
+        run: npx cap sync android
+
+      - name: Build debug APK
         run: |
-          node <<'NODE'
-          const fs = require('fs');
-          const html = fs.readFileSync('index.html', 'utf8');
-          const required = [
-            'topic-extras.js',
-            'curriculum.js',
-            'extended-lessons.js',
-            'workflows.js',
-            'app.js'
-          ];
-          const missing = required.filter(file => !html.includes(file));
-          if (missing.length) {
-            console.error('Missing script references:', missing.join(', '));
-            process.exit(1);
-          }
-          console.log('All required JavaScript files are referenced by index.html');
-          NODE
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-academy-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
