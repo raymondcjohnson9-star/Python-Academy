@@ -1,0 +1,9 @@
+{
+  "name": "Python Academy",
+  "short_name": "Python Academy",
+  "description": "Learn Python step by step with lessons, practice and saved progress.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f7f9f7",
+  "theme_color": "#10251d"
+}
