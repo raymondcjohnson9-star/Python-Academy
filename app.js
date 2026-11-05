@@ -38,9 +38,13 @@ function renderLessonLists(){
  const home=document.getElementById("homeLessons"),course=document.getElementById("courseList");home.innerHTML="";course.innerHTML="";
  lessons.forEach((lesson,i)=>{
   const done=state.completed.includes(i),unlocked=isUnlocked(i);
-    const card=document.createElement("button");card.className="lesson-card";card.disabled=!unlocked;card.innerHTML='<span class="lesson-index">'+(done?'✓ COMPLETED':'LESSON '+String(i+1).padStart(2,'0'))+'</span><b>'+lesson.title+'</b><small>'+ (done?'Review lesson':unlocked?'Ready to learn':'Complete the previous lesson first')+'</small>';
-  card.addEventListener("click",()=>openLesson(i));home.appendChild(card);
-  const row=document.createElement("div");row.className="course-row"+(!unlocked?" locked":"");row.innerHTML='<span class="num">'+(done?'✓':String(i+1).padStart(2,'0'))+'</span><div class="course-info"><b>'+lesson.title+'</b><p>'+lesson.desc+'</p></div><button '+(!unlocked?'disabled':'')+'>'+(done?'Review':unlocked?'Start lesson':'Locked')+'</button>';
+  if(i<12){
+   const card=document.createElement("button");card.className="lesson-card";card.disabled=!unlocked;
+   card.innerHTML='<span class="lesson-index">'+(done?'✓ COMPLETED':'LESSON '+String(i+1).padStart(2,'0'))+'</span><b>'+lesson.title+'</b><small>'+(done?'Review lesson':unlocked?'Ready to learn':'Complete the previous lesson first')+'</small>';
+   card.addEventListener("click",()=>openLesson(i));home.appendChild(card);
+  }
+  const row=document.createElement("div");row.className="course-row"+(!unlocked?" locked":"");
+  row.innerHTML='<span class="num">'+(done?'✓':String(i+1).padStart(2,'0'))+'</span><div class="course-info"><b>'+lesson.title+'</b><p>'+lesson.desc+'</p></div><button '+(!unlocked?'disabled':'')+'>'+(done?'Review':unlocked?'Start lesson':'Locked')+'</button>';
   row.querySelector("button").addEventListener("click",()=>openLesson(i));course.appendChild(row);
  });
 }
