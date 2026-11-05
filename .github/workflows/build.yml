@@ -1,0 +1,67 @@
+name: Python Academy Build
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate app
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Check JavaScript syntax
+        run: |
+          for file in app.js topic-extras.js curriculum.js extended-lessons.js workflows.js service-worker.js; do
+            echo "Checking $file"
+            node --check "$file"
+          done
+
+      - name: Validate JSON files
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('manifest.json', 'utf8')); console.log('manifest.json is valid')"
+
+      - name: Check required app files
+        run: |
+          test -f index.html
+          test -f styles.css
+          test -f app.js
+          test -f topic-extras.js
+          test -f curriculum.js
+          test -f extended-lessons.js
+          test -f workflows.js
+          test -f service-worker.js
+          echo "All required app files are present"
+
+      - name: Verify app scripts are loaded
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const html = fs.readFileSync('index.html', 'utf8');
+          const required = [
+            'topic-extras.js',
+            'curriculum.js',
+            'extended-lessons.js',
+            'workflows.js',
+            'app.js'
+          ];
+          const missing = required.filter(file => !html.includes(file));
+          if (missing.length) {
+            console.error('Missing script references:', missing.join(', '));
+            process.exit(1);
+          }
+          console.log('All required JavaScript files are referenced by index.html');
+          NODE
