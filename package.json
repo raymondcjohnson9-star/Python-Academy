@@ -1,0 +1,17 @@
+{
+  "name": "python-academy",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A step-by-step Python learning app",
+  "scripts": {
+    "build": "node scripts/prepare-web.mjs",
+    "android:sync": "npm run build && cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "6.2.1",
+    "@capacitor/core": "6.2.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "6.2.1"
+  }
+}
