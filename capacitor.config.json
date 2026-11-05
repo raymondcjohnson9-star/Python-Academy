@@ -1,0 +1,6 @@
+{
+  "appId": "com.pythonacademy.learn",
+  "appName": "Python Academy",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
