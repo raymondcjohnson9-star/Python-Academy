@@ -16,3 +16,18 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .task-item{display:flex;align-items:flex-start;gap:10px;background:#fff;border:1px solid #e2eae4;border-radius:8px;padding:12px;margin:8px 0;font-size:12px;line-height:1.5;cursor:pointer}
 .task-item input{accent-color:#176b48;margin-top:2px;flex-shrink:0}
 .task-progress{font-size:11px;font-weight:700;color:#176b48}
+
+.curriculum-levels{display:grid;gap:14px;margin:20px 0 28px}
+.curriculum-card{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px}
+.curriculum-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.curriculum-head h2{font:700 17px Manrope;margin:0 0 5px}
+.curriculum-head p{font-size:12px;color:var(--muted);margin:0;line-height:1.6}
+.curriculum-status{display:inline-block;white-space:nowrap;border-radius:20px;background:#f0f2f0;color:#69756d;padding:6px 9px;font-size:10px;font-weight:800}
+.curriculum-status.available{background:#e7f4eb;color:#176b48}
+.curriculum-topics{columns:2;column-gap:30px;padding-left:22px;margin:16px 0 8px}
+.curriculum-topics li{break-inside:avoid;padding:5px 0;color:var(--ink);font-size:11px;line-height:1.5}
+.curriculum-topics li span{display:block}
+.curriculum-topics small{font-size:9px;font-weight:700}
+.topic-available{color:#176b48}.topic-upcoming{color:#929b94}
+.curriculum-foot{border-top:1px solid var(--line);padding-top:10px;margin:10px 0 0;color:var(--muted);font-size:11px;line-height:1.6}
+@media(max-width:520px){.curriculum-card{padding:15px}.curriculum-topics{columns:1}.curriculum-head{flex-direction:column}}
