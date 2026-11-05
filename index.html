@@ -20,6 +20,7 @@
       <button class="nav-item active" data-view="home"><span>⌂</span> Overview</button>
       <button class="nav-item" data-view="course"><span>▤</span> Course lessons</button>
       <button class="nav-item" data-view="practice"><span>⌨</span> Practice</button>
+      <button class="nav-item" data-view="workflows"><span>⇢</span> Workflows</button>
       <div class="side-card"><div class="side-card-icon">✦</div><b>One step at a time</b><p>Complete a lesson and its check before moving to the next one.</p></div>
       <div class="sidebar-foot">PYTHON FOUNDATIONS<br><span>Beginner learning path</span></div>
     </aside>
@@ -62,12 +63,19 @@
           <div class="practice-actions"><button class="primary-btn" id="runPracticeCode">▶ Run code</button><button class="secondary-btn" id="showHint">Show hint</button><button class="secondary-btn" id="showSolution">Show solution</button></div>
           <p id="practiceStatus" class="muted small">The Python engine loads the first time you run code.</p><pre class="runner-output" id="practiceOutput" aria-live="polite">Your output will appear here.</pre><p id="practiceHint" class="muted small hidden">Hint: use the <code>print()</code> function and put the message inside quotation marks.</p><pre id="practiceSolution" class="code-block hidden"><code>print("Hello, Python!")</code></pre></div><div class="practice-note"><b>Coming next</b><p class="muted">More challenges will unlock as the course grows. This first version focuses on building your foundations.</p></div>
       </section>
+      <section id="workflowsView" class="view hidden">
+        <p class="eyebrow">LEARN HOW TO WORK LIKE A DEVELOPER</p><h1>Python workflows</h1>
+        <p class="muted">Follow these guided routines for learning, practising, building projects and fixing bugs. Tick each step as you complete it; your workflow progress is saved on this device.</p>
+        <div class="workflow-summary" id="workflowSummary"></div>
+        <div id="workflowList" class="workflow-list"></div>
+      </section>
       <footer class="app-footer">Python Academy <span>•</span> Learn. Practise. Progress.</footer>
     </main>
   </div>
   <script src="topic-extras.js"></script>
   <script src="curriculum.js"></script>
   <script src="extended-lessons.js"></script>
+  <script src="workflows.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
