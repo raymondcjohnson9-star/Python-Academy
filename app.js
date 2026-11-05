@@ -45,7 +45,7 @@ function openLesson(index){
  if(!isUnlocked(index))return;
  currentLesson=index;selectedAnswer=null;state.lastLesson=index;saveState();showView("lesson");
  const l=lessons[index];document.getElementById("lessonNumber").textContent="LESSON "+String(index+1).padStart(2,"0");document.getElementById("lessonTitle").textContent=l.title;document.getElementById("lessonIntro").textContent=l.intro;
- let body="";l.sections.forEach(s=>body+='<h2>'+s[0]+'</h2><p>'+s[1]+'</p>');body+='<pre class="code-block"><code>'+escapeHtml(l.code)+'</code></pre><p class="callout">'+l.explain+'</p><p>Take a moment to type the example yourself and change a value to see what happens.</p>';document.getElementById("lessonBody").innerHTML=body;
+ let body="";l.sections.forEach(s=>body+='<h2>'+s[0]+'</h2><p>'+s[1]+'</p>');body+='<pre class="code-block"><code>'+escapeHtml(l.code)+'</code></pre><p class="callout">'+l.explain+'</p><p>Take a moment to type the example yourself and change a value to see what happens.</p>';document.getElementById("lessonBody").innerHTML=body;document.getElementById("lessonCode").value=l.code;document.getElementById("lessonOutput").textContent="Your output will appear here.";
  document.getElementById("quizQuestion").textContent=l.question;const opts=document.getElementById("quizOptions");opts.innerHTML="";
  l.options.forEach((o,i)=>{const b=document.createElement("button");b.className="quiz-option";b.textContent=o;b.addEventListener("click",()=>{selectedAnswer=i;opts.querySelectorAll("button").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");document.getElementById("quizFeedback").textContent=""});opts.appendChild(b)});
  document.getElementById("quizFeedback").textContent="";document.getElementById("checkAnswer").disabled=false;document.getElementById("completeLesson").disabled=!state.completed.includes(index)&&selectedAnswer!==l.answer;document.getElementById("completeLesson").textContent=state.completed.includes(index)?"Completed ✓":"Complete lesson ✓";
@@ -64,3 +64,48 @@ document.getElementById("showHint").addEventListener("click",()=>document.getEle
 document.getElementById("showSolution").addEventListener("click",()=>document.getElementById("practiceSolution").classList.toggle("hidden"));
 document.getElementById("menuBtn").addEventListener("click",()=>document.getElementById("sidebar").classList.toggle("open"));
 renderProgress();
+
+// Browser Python runtime: Pyodide is downloaded only when the learner first runs code.
+let pyodidePromise = null;
+async function getPythonRuntime(statusElement) {
+  if (window.pyodide) return window.pyodide;
+  if (!pyodidePromise) {
+    statusElement.textContent = "Downloading the Python engine… internet is needed the first time.";
+    pyodidePromise = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js";
+      script.onload = async () => {
+        try { resolve(await loadPyodide()); }
+        catch (error) { reject(error); }
+      };
+      script.onerror = () => reject(new Error("Could not download Python. Check your internet connection and try again."));
+      document.head.appendChild(script);
+    }).catch(error => { pyodidePromise = null; throw error; });
+  }
+  return pyodidePromise;
+}
+async function runPython(source, outputElement, statusElement, button) {
+  button.disabled = true;
+  outputElement.textContent = "Running…";
+  try {
+    const py = await getPythonRuntime(statusElement);
+    let output = "";
+    py.setStdout({ batched: text => { output += text; } });
+    py.setStderr({ batched: text => { output += text; } });
+    await py.runPythonAsync(source);
+    outputElement.textContent = output.trimEnd() || "(No output. Your code ran successfully.)";
+    statusElement.textContent = "Python is ready in your browser.";
+  } catch (error) {
+    outputElement.textContent = String(error);
+    statusElement.textContent = "Could not run code. Check the message and try again.";
+  } finally {
+    button.disabled = false;
+  }
+}
+document.getElementById("runLessonCode").addEventListener("click", () =>
+  runPython(document.getElementById("lessonCode").value, document.getElementById("lessonOutput"), document.getElementById("pythonStatus"), document.getElementById("runLessonCode")));
+document.getElementById("runPracticeCode").addEventListener("click", () =>
+  runPython(document.getElementById("practiceInput").value, document.getElementById("practiceOutput"), document.getElementById("practiceStatus"), document.getElementById("runPracticeCode")));
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("./service-worker.js").catch(() => {}));
+}
