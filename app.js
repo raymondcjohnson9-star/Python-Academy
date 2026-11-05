@@ -12,11 +12,12 @@ const lessons = [
 {title:"Files and error handling",desc:"Read and write files and respond to common errors.",intro:"Programs can save information in files. Error handling helps your program respond when something goes wrong.",sections:[["Working with files","The with open(...) pattern manages a file for you and closes it when the block finishes."],["Handling errors","Use try and except to handle errors that you expect might happen, such as a missing file or invalid number."]],code:'try:\n    number = int("hello")\nexcept ValueError:\n    print("Please enter a valid number")',explain:"The conversion raises a ValueError, so the except block runs instead of stopping the program unexpectedly.",question:"Which keyword starts an error-handling block?",options:["try","check","error"],answer:0},
 {title:"Object-oriented Python",desc:"Learn classes, objects, attributes and methods.",intro:"Object-oriented programming groups related data and behaviour together. A class is a blueprint used to create objects.",sections:[["Classes and objects","A class defines the structure and behaviour that its objects can have."],["Attributes and methods","Attributes store information about an object. Methods are functions defined inside a class."]],code:'class Pet:\n    def __init__(self, name):\n        self.name = name\n\nmy_pet = Pet("Milo")\nprint(my_pet.name)',explain:"Pet is a class. my_pet is an object created from it, and name is an attribute.",question:"What is a class?",options:["A blueprint for creating objects","A type of loop","A file name"],answer:0}
 ];
-const STORAGE_KEY = "pythonAcademyProgressV1";
+const STORAGE_KEY = "pythonAcademyProgressV2";
 let state = loadState();
 let currentLesson = 0;
 let selectedAnswer = null;
-function loadState(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||{completed:[],lastLesson:0}}catch{return {completed:[],lastLesson:0}}}
+let taskChecks = [];
+function loadState(){try{const s=JSON.parse(localStorage.getItem(STORAGE_KEY))||{};return {completed:Array.isArray(s.completed)?s.completed:[],lastLesson:Number.isInteger(s.lastLesson)?s.lastLesson:0,practiceDone:s.practiceDone||{}}}catch{return {completed:[],lastLesson:0,practiceDone:{}}}}
 function saveState(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));renderProgress()}
 function isUnlocked(index){return index===0||state.completed.includes(index-1)}
 function firstIncomplete(){return lessons.findIndex((_,i)=>!state.completed.includes(i))}
@@ -43,23 +44,40 @@ function renderLessonLists(){
 function showView(name){document.querySelectorAll(".view").forEach(v=>v.classList.add("hidden"));document.getElementById(name+"View").classList.remove("hidden");document.querySelectorAll(".nav-item").forEach(b=>b.classList.toggle("active",b.dataset.view===name));document.getElementById("sidebar").classList.remove("open");}
 function openLesson(index){
  if(!isUnlocked(index))return;
- currentLesson=index;selectedAnswer=null;state.lastLesson=index;saveState();showView("lesson");
+ currentLesson=index;selectedAnswer=null;taskChecks=(state.practiceDone[index]||[]).slice();state.lastLesson=index;saveState();showView("lesson");
  const l=lessons[index];document.getElementById("lessonNumber").textContent="LESSON "+String(index+1).padStart(2,"0");document.getElementById("lessonTitle").textContent=l.title;document.getElementById("lessonIntro").textContent=l.intro;
- let body="";l.sections.forEach(s=>body+='<h2>'+s[0]+'</h2><p>'+s[1]+'</p>');body+='<pre class="code-block"><code>'+escapeHtml(l.code)+'</code></pre><p class="callout">'+l.explain+'</p><p>Take a moment to type the example yourself and change a value to see what happens.</p>';document.getElementById("lessonBody").innerHTML=body;document.getElementById("lessonCode").value=l.code;document.getElementById("lessonOutput").textContent="Your output will appear here.";
+ let body="";l.sections.forEach(s=>body+='<h2>'+s[0]+'</h2><p>'+s[1]+'</p>');body+='<pre class="code-block"><code>'+escapeHtml(l.code)+'</code></pre><p class="callout">'+l.explain+'</p><p>Take a moment to type the example yourself and change a value to see what happens.</p>';document.getElementById("lessonBody").innerHTML=body;renderTopicExercises(index);document.getElementById("lessonCode").value=l.code;document.getElementById("lessonOutput").textContent="Your output will appear here.";
  document.getElementById("quizQuestion").textContent=l.question;const opts=document.getElementById("quizOptions");opts.innerHTML="";
- l.options.forEach((o,i)=>{const b=document.createElement("button");b.className="quiz-option";b.textContent=o;b.addEventListener("click",()=>{selectedAnswer=i;opts.querySelectorAll("button").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");document.getElementById("quizFeedback").textContent=""});opts.appendChild(b)});
- document.getElementById("quizFeedback").textContent="";document.getElementById("checkAnswer").disabled=false;document.getElementById("completeLesson").disabled=!state.completed.includes(index)&&selectedAnswer!==l.answer;document.getElementById("completeLesson").textContent=state.completed.includes(index)?"Completed ✓":"Complete lesson ✓";
+ l.options.forEach((o,i)=>{const b=document.createElement("button");b.className="quiz-option";b.textContent=o;b.addEventListener("click",()=>{selectedAnswer=i;opts.querySelectorAll("button").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");document.getElementById("quizFeedback").textContent="";updateTaskGate()});opts.appendChild(b)});
+ document.getElementById("quizFeedback").textContent="";document.getElementById("checkAnswer").disabled=false;document.getElementById("completeLesson").disabled=!state.completed.includes(index)&&!(selectedAnswer===l.answer&&taskChecks.length===3&&taskChecks.every(Boolean));document.getElementById("completeLesson").textContent=state.completed.includes(index)?"Completed ✓":"Complete lesson ✓";
  document.getElementById("lessonProgressBar").style.width=Math.round(state.completed.length/lessons.length*100)+"%";document.getElementById("lessonProgressText").textContent=state.completed.length+" of "+lessons.length+" lessons completed";
  document.getElementById("previousLesson").disabled=index===0;
 }
+
+function renderTopicExercises(index){
+ const detail=topicExtras[index],body=document.getElementById("lessonBody");
+ const heading=document.createElement("h2");heading.textContent="Go deeper";
+ const paragraph=document.createElement("p");paragraph.textContent=detail.extra;body.append(heading,paragraph);
+ const panel=document.createElement("section");panel.className="topic-practice";
+ panel.innerHTML='<p class="eyebrow">PRACTICE BEFORE MOVING ON</p><h2>Exercises for this topic</h2><p class="muted">Try each task in the Python playground above. Tick it after you have attempted it.</p><div id="topicTasks"></div><p id="taskProgress" class="task-progress"></p>';
+ body.appendChild(panel);
+ const host=panel.querySelector("#topicTasks");
+ detail.tasks.forEach((task,i)=>{const label=document.createElement("label");label.className="task-item";const input=document.createElement("input");input.type="checkbox";input.checked=!!taskChecks[i];const span=document.createElement("span");span.textContent=task;input.addEventListener("change",()=>{taskChecks[i]=input.checked;state.practiceDone[index]=taskChecks.slice();saveState();updateTaskGate()});label.append(input,span);host.appendChild(label)});
+ updateTaskGate();
+}
+function updateTaskGate(){
+ const count=taskChecks.filter(Boolean).length,p=document.getElementById("taskProgress");if(p)p.textContent=count+" of 3 exercises attempted";
+ const button=document.getElementById("completeLesson");if(button)button.disabled=state.completed.includes(currentLesson)?false:!(selectedAnswer===lessons[currentLesson].answer&&count===3);
+}
+
 function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 document.querySelectorAll(".nav-item").forEach(b=>b.addEventListener("click",()=>showView(b.dataset.view)));
 document.querySelectorAll("[data-goto]").forEach(b=>b.addEventListener("click",()=>showView(b.dataset.goto)));
 document.getElementById("resumeBtn").addEventListener("click",()=>openLesson(resumeIndex()));
 document.getElementById("backToCourse").addEventListener("click",()=>showView("course"));
 document.getElementById("previousLesson").addEventListener("click",()=>{if(currentLesson>0)openLesson(currentLesson-1)});
-document.getElementById("checkAnswer").addEventListener("click",()=>{const l=lessons[currentLesson],f=document.getElementById("quizFeedback");if(selectedAnswer===null){f.textContent="Choose an answer first.";f.style.color="#a36b25";return}if(selectedAnswer===l.answer){f.textContent="Correct! You understand this idea.";f.style.color="#176b48";document.getElementById("completeLesson").disabled=false}else{f.textContent="Not quite. Review the lesson and try again.";f.style.color="#b34d42"}});
-document.getElementById("completeLesson").addEventListener("click",()=>{if(!state.completed.includes(currentLesson)){if(selectedAnswer!==lessons[currentLesson].answer)return;state.completed.push(currentLesson);state.completed.sort((a,b)=>a-b)}const next=firstIncomplete();state.lastLesson=next===-1?currentLesson:next;saveState();if(next!==-1&&next!==currentLesson)openLesson(next);else{showView("course")}});
+document.getElementById("checkAnswer").addEventListener("click",()=>{const l=lessons[currentLesson],f=document.getElementById("quizFeedback");if(selectedAnswer===null){f.textContent="Choose an answer first.";f.style.color="#a36b25";return}if(selectedAnswer===l.answer){f.textContent="Correct! You understand this idea.";f.style.color="#176b48";updateTaskGate()}else{f.textContent="Not quite. Review the lesson and try again.";f.style.color="#b34d42"}});
+document.getElementById("completeLesson").addEventListener("click",()=>{if(!state.completed.includes(currentLesson)){if(selectedAnswer!==lessons[currentLesson].answer||taskChecks.length!==3||!taskChecks.every(Boolean))return;state.completed.push(currentLesson);state.completed.sort((a,b)=>a-b)}const next=firstIncomplete();state.lastLesson=next===-1?currentLesson:next;saveState();if(next!==-1&&next!==currentLesson)openLesson(next);else{showView("course")}});
 document.getElementById("showHint").addEventListener("click",()=>document.getElementById("practiceHint").classList.toggle("hidden"));
 document.getElementById("showSolution").addEventListener("click",()=>document.getElementById("practiceSolution").classList.toggle("hidden"));
 document.getElementById("menuBtn").addEventListener("click",()=>document.getElementById("sidebar").classList.toggle("open"));
