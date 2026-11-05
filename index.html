@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10251d">
+  <meta name="description" content="Learn Python step by step with lessons, practice and saved progress.">
+  <title>Python Academy — Learn Python step by step</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Python Academy home"><span class="brand-mark">Py</span><span>Python <b>Academy</b></span></a>
+    <div class="top-actions"><span class="save-indicator"><i></i> Progress saved on this device</span><button class="mobile-menu" id="menuBtn" aria-label="Toggle navigation">☰</button></div>
+  </header>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="side-label">YOUR LEARNING</div>
+      <button class="nav-item active" data-view="home"><span>⌂</span> Overview</button>
+      <button class="nav-item" data-view="course"><span>▤</span> Course lessons</button>
+      <button class="nav-item" data-view="practice"><span>⌨</span> Practice</button>
+      <div class="side-card"><div class="side-card-icon">✦</div><b>One step at a time</b><p>Complete a lesson and its check before moving to the next one.</p></div>
+      <div class="sidebar-foot">PYTHON FOUNDATIONS<br><span>Beginner learning path</span></div>
+    </aside>
+    <main id="main" tabindex="-1">
+      <section id="homeView" class="view">
+        <div class="welcome-row"><div><p class="eyebrow">YOUR LEARNING SPACE</p><h1>Keep building, one lesson at a time.</h1><p class="muted">Learn Python at your own pace. Your place is saved automatically.</p></div><div class="python-art" aria-hidden="true"><span>Py</span><i>✳</i></div></div>
+        <section class="resume-card">
+          <div class="resume-copy"><span class="pill">PICK UP WHERE YOU LEFT OFF</span><h2 id="resumeTitle">Python: Getting started</h2><p id="resumeDescription">Your next lesson is ready when you are.</p><button class="primary-btn" id="resumeBtn">Resume learning <span>→</span></button></div>
+          <div class="resume-symbol" aria-hidden="true">▶</div>
+        </section>
+        <div class="section-heading"><div><p class="eyebrow">YOUR JOURNEY</p><h2>Learning progress</h2></div><span class="muted" id="progressLabel">0% complete</span></div>
+        <div class="progress-card"><div class="progress-top"><b id="completedCount">0 of 12 lessons completed</b><span id="percentLabel">0%</span></div><div class="progress-track"><div id="progressBar"></div></div><p class="muted small">Your progress stays on this device, even when you close the app.</p></div>
+        <div class="section-heading"><div><p class="eyebrow">THE ROADMAP</p><h2>Python course</h2></div><button class="text-btn" data-goto="course">View all lessons →</button></div>
+        <div class="lesson-grid" id="homeLessons"></div>
+      </section>
+      <section id="courseView" class="view hidden">
+        <p class="eyebrow">THE COMPLETE LEARNING PATH</p><h1>Python course</h1><p class="muted">Follow the lessons in order. Finish the current lesson to unlock the next one.</p>
+        <div class="progress-card compact"><div class="progress-top"><b id="courseProgressText">0 of 12 lessons completed</b><span id="coursePercent">0%</span></div><div class="progress-track"><div id="courseProgressBar"></div></div></div>
+        <div id="courseList" class="course-list"></div>
+      </section>
+      <section id="lessonView" class="view hidden">
+        <button class="back-btn" id="backToCourse">← All lessons</button>
+        <div class="lesson-layout"><article class="lesson-content">
+          <div class="lesson-meta"><span id="lessonNumber">LESSON 01</span><span>•</span><span>BEGINNER</span></div>
+          <h1 id="lessonTitle"></h1><p class="lesson-intro" id="lessonIntro"></p>
+          <div id="lessonBody"></div>
+          <div class="lesson-check" id="lessonCheck"><p class="eyebrow">QUICK KNOWLEDGE CHECK</p><h3 id="quizQuestion"></h3><div id="quizOptions"></div><p id="quizFeedback" class="quiz-feedback" aria-live="polite"></p><button class="primary-btn" id="checkAnswer">Check answer</button></div>
+          <div class="lesson-footer"><button class="secondary-btn" id="previousLesson">← Previous</button><button class="primary-btn" id="completeLesson">Complete lesson <span>✓</span></button></div>
+        </article><aside class="lesson-aside"><div class="aside-box"><b>Course progress</b><div class="progress-track"><div id="lessonProgressBar"></div></div><p id="lessonProgressText" class="muted small"></p><hr><b>Learning tip</b><p class="muted small">Try typing each example yourself. Changing the code is a great way to learn.</p></div></aside></div>
+      </section>
+      <section id="practiceView" class="view hidden">
+        <p class="eyebrow">PUT YOUR KNOWLEDGE TO WORK</p><h1>Practice Python</h1><p class="muted">Try these small challenges after studying the matching lessons.</p><div class="practice-panel"><span class="pill">CHALLENGE 01</span><h2>Say hello</h2><p>Write a Python line that displays the message <code>Hello, Python!</code>.</p><textarea id="practiceInput" spellcheck="false" placeholder="Write your Python code here..."></textarea><div class="practice-actions"><button class="primary-btn" id="showHint">Show hint</button><button class="secondary-btn" id="showSolution">Show solution</button></div><p id="practiceHint" class="muted small hidden">Hint: use the <code>print()</code> function and put the message inside quotation marks.</p><pre id="practiceSolution" class="code-block hidden"><code>print("Hello, Python!")</code></pre></div><div class="practice-note"><b>Coming next</b><p class="muted">More challenges will unlock as the course grows. This first version focuses on building your foundations.</p></div>
+      </section>
+      <footer class="app-footer">Python Academy <span>•</span> Learn. Practise. Progress.</footer>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
