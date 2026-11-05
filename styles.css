@@ -31,3 +31,26 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .topic-available{color:#176b48}.topic-upcoming{color:#929b94}
 .curriculum-foot{border-top:1px solid var(--line);padding-top:10px;margin:10px 0 0;color:var(--muted);font-size:11px;line-height:1.6}
 @media(max-width:520px){.curriculum-card{padding:15px}.curriculum-topics{columns:1}.curriculum-head{flex-direction:column}}
+
+/* Guided and real-world workflows */
+.workflow-summary,.workflow-card{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px 20px}
+.workflow-summary{margin:20px 0}
+.workflow-summary-top{display:flex;justify-content:space-between;font-size:13px}
+.workflow-summary-top strong{color:var(--green)}
+.workflow-summary p{font-size:11px;color:var(--muted);margin:8px 0 0}
+.workflow-list{display:grid;gap:14px}
+.workflow-card-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+.workflow-category{font-size:9px;letter-spacing:1px;text-transform:uppercase;font-weight:800;color:var(--green)}
+.workflow-card h2{font:700 18px Manrope;margin:7px 0}
+.workflow-card-head p{font-size:12px;line-height:1.6;color:var(--muted);margin:0}
+.workflow-count{background:var(--mint);color:var(--green);padding:7px 10px;border-radius:20px;font-size:11px;font-weight:800;white-space:nowrap}
+.workflow-steps{list-style:none;padding:0;margin:14px 0}
+.workflow-step{border-top:1px solid var(--line);padding:13px 0}
+.workflow-step label{display:flex;gap:11px;align-items:flex-start;cursor:pointer}
+.workflow-step input{accent-color:var(--green);margin-top:3px;flex-shrink:0;width:16px;height:16px}
+.workflow-step label>span{display:grid;gap:5px}
+.workflow-step b{font-size:12px}
+.workflow-detail,.workflow-example{font-size:11px;line-height:1.6;color:var(--muted)}
+.workflow-example{background:#f3f7f4;padding:8px 10px;border-radius:7px;color:#496354}
+.workflow-reset{font-size:10px;padding:9px 12px}
+@media(max-width:520px){.workflow-summary,.workflow-card{padding:15px}.workflow-card h2{font-size:16px}}
