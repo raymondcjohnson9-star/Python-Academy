@@ -46,12 +46,21 @@
           <div class="lesson-meta"><span id="lessonNumber">LESSON 01</span><span>•</span><span>BEGINNER</span></div>
           <h1 id="lessonTitle"></h1><p class="lesson-intro" id="lessonIntro"></p>
           <div id="lessonBody"></div>
+          <section class="runner-card">
+            <p class="eyebrow">TRY IT YOURSELF</p><h2>Python playground</h2>
+            <p class="muted">Edit the example or write your own Python code, then run it.</p>
+            <textarea id="lessonCode" spellcheck="false" aria-label="Python code editor"></textarea>
+            <div class="runner-actions"><button class="primary-btn" id="runLessonCode">▶ Run code</button><span id="pythonStatus" class="muted small">Python engine loads when you first run code.</span></div>
+            <pre class="runner-output" id="lessonOutput" aria-live="polite">Your output will appear here.</pre>
+          </section>
           <div class="lesson-check" id="lessonCheck"><p class="eyebrow">QUICK KNOWLEDGE CHECK</p><h3 id="quizQuestion"></h3><div id="quizOptions"></div><p id="quizFeedback" class="quiz-feedback" aria-live="polite"></p><button class="primary-btn" id="checkAnswer">Check answer</button></div>
           <div class="lesson-footer"><button class="secondary-btn" id="previousLesson">← Previous</button><button class="primary-btn" id="completeLesson">Complete lesson <span>✓</span></button></div>
         </article><aside class="lesson-aside"><div class="aside-box"><b>Course progress</b><div class="progress-track"><div id="lessonProgressBar"></div></div><p id="lessonProgressText" class="muted small"></p><hr><b>Learning tip</b><p class="muted small">Try typing each example yourself. Changing the code is a great way to learn.</p></div></aside></div>
       </section>
       <section id="practiceView" class="view hidden">
-        <p class="eyebrow">PUT YOUR KNOWLEDGE TO WORK</p><h1>Practice Python</h1><p class="muted">Try these small challenges after studying the matching lessons.</p><div class="practice-panel"><span class="pill">CHALLENGE 01</span><h2>Say hello</h2><p>Write a Python line that displays the message <code>Hello, Python!</code>.</p><textarea id="practiceInput" spellcheck="false" placeholder="Write your Python code here..."></textarea><div class="practice-actions"><button class="primary-btn" id="showHint">Show hint</button><button class="secondary-btn" id="showSolution">Show solution</button></div><p id="practiceHint" class="muted small hidden">Hint: use the <code>print()</code> function and put the message inside quotation marks.</p><pre id="practiceSolution" class="code-block hidden"><code>print("Hello, Python!")</code></pre></div><div class="practice-note"><b>Coming next</b><p class="muted">More challenges will unlock as the course grows. This first version focuses on building your foundations.</p></div>
+        <p class="eyebrow">PUT YOUR KNOWLEDGE TO WORK</p><h1>Practice Python</h1><p class="muted">Try these small challenges after studying the matching lessons.</p><div class="practice-panel"><span class="pill">CHALLENGE 01</span><h2>Say hello</h2><p>Write a Python line that displays the message <code>Hello, Python!</code>.</p><textarea id="practiceInput" spellcheck="false" placeholder="Write your Python code here...">print("Hello, Python!")</textarea>
+          <div class="practice-actions"><button class="primary-btn" id="runPracticeCode">▶ Run code</button><button class="secondary-btn" id="showHint">Show hint</button><button class="secondary-btn" id="showSolution">Show solution</button></div>
+          <p id="practiceStatus" class="muted small">The Python engine loads the first time you run code.</p><pre class="runner-output" id="practiceOutput" aria-live="polite">Your output will appear here.</pre><p id="practiceHint" class="muted small hidden">Hint: use the <code>print()</code> function and put the message inside quotation marks.</p><pre id="practiceSolution" class="code-block hidden"><code>print("Hello, Python!")</code></pre></div><div class="practice-note"><b>Coming next</b><p class="muted">More challenges will unlock as the course grows. This first version focuses on building your foundations.</p></div>
       </section>
       <footer class="app-footer">Python Academy <span>•</span> Learn. Practise. Progress.</footer>
     </main>
