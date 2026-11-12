@@ -60,3 +60,5 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .runner-card .runner-stdin,.practice-panel .runner-stdin{min-height:58px;height:58px;resize:vertical;background:#f7faf7;color:var(--ink);font:12px/1.6 ui-monospace,monospace}
 .runner-actions .secondary-btn,.practice-actions .secondary-btn{padding:11px 13px}
 @media(max-width:520px){.runner-input-label{align-items:flex-start;flex-direction:column;gap:3px}.runner-input-label span{text-align:left}}
+
+.runner-warning{background:#fff7e9;color:#77572a;border:1px solid #f2e2c4;border-radius:7px;padding:9px 11px;font-size:11px;line-height:1.5;margin:10px 0 13px}
