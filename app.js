@@ -108,7 +108,7 @@ function openLesson(index){
  if(!isUnlocked(index))return;
  currentLesson=index;selectedAnswer=null;answerCorrect=false;taskChecks=(state.practiceDone[index]||[]).slice();state.lastLesson=index;saveState();showView("lesson");
  const l=lessons[index];document.getElementById("lessonNumber").textContent="LESSON "+String(index+1).padStart(2,"0");const levelInfo=window.pythonCurriculum.find((level,li)=>{const start=window.pythonCurriculum.slice(0,li).reduce((sum,item)=>sum+item.topics.length,0);return index>=start&&index<start+level.topics.length});document.querySelector(".lesson-meta span:nth-child(3)").textContent=levelInfo?levelInfo.level.toUpperCase():"PYTHON";document.getElementById("lessonTitle").textContent=l.title;document.getElementById("lessonIntro").textContent=l.intro;
- let body="";l.sections.forEach(s=>body+='<h2>'+s[0]+'</h2><p>'+s[1]+'</p>');body+='<pre class="code-block"><code>'+escapeHtml(l.code)+'</code></pre><p class="callout">'+l.explain+'</p><p>Take a moment to type the example yourself and change a value to see what happens.</p>';document.getElementById("lessonBody").innerHTML=body;renderTopicExercises(index);document.getElementById("lessonCode").value=l.code;document.getElementById("lessonOutput").textContent="Your output will appear here.";
+ let body="";l.sections.forEach(s=>body+='<h2>'+s[0]+'</h2><p>'+s[1]+'</p>');body+='<pre class="code-block"><code>'+escapeHtml(l.code)+'</code></pre><p class="callout">'+l.explain+'</p><p>Take a moment to type the example yourself and change a value to see what happens.</p>';document.getElementById("lessonBody").innerHTML=body;renderTopicExercises(index);document.getElementById("lessonCode").value=l.code;document.getElementById("lessonStdin").value=/\binput\s*\(/.test(l.code)?"Learner":"";document.getElementById("lessonOutput").textContent="Your output will appear here.";document.getElementById("pythonStatus").textContent="Ready when you are. The first run needs an internet connection.";document.getElementById("runLessonCode").disabled=false;
  document.getElementById("quizQuestion").textContent=l.question;const opts=document.getElementById("quizOptions");opts.innerHTML="";
  l.options.forEach((o,i)=>{const b=document.createElement("button");b.className="quiz-option";b.textContent=o;b.addEventListener("click",()=>{selectedAnswer=i;answerCorrect=false;opts.querySelectorAll("button").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");document.getElementById("quizFeedback").textContent="";updateTaskGate()});opts.appendChild(b)});
  document.getElementById("quizFeedback").textContent="";document.getElementById("checkAnswer").disabled=false;document.getElementById("completeLesson").disabled=!state.completed.includes(index)&&!(selectedAnswer===l.answer&&taskChecks.length===3&&taskChecks.every(Boolean));document.getElementById("completeLesson").textContent=state.completed.includes(index)?"Completed ✓":"Complete lesson ✓";
@@ -147,46 +147,98 @@ renderCurriculum();
 renderProgress();
 
 // Browser Python runtime: Pyodide is downloaded only when the learner first runs code.
+// The runtime itself is hosted on the Pyodide CDN; offline Python execution is not enabled.
+const PYODIDE_CDN = "https://cdn.jsdelivr.net/pyodide/v0.27.7/full/";
 let pyodidePromise = null;
 async function getPythonRuntime(statusElement) {
-  if (window.pyodide) return window.pyodide;
+  if (window.pyodide) {
+    statusElement.textContent = "Python engine ready. Running your code…";
+    return window.pyodide;
+  }
   if (!pyodidePromise) {
-    statusElement.textContent = "Downloading the Python engine… internet is needed the first time.";
+    statusElement.textContent = "Downloading Python from the Pyodide CDN. An internet connection is required for the first run.";
     pyodidePromise = new Promise((resolve, reject) => {
       const script = document.createElement("script");
-      script.src = "https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js";
+      script.src = PYODIDE_CDN + "pyodide.js";
+      script.async = true;
       script.onload = async () => {
-        try { resolve(await loadPyodide()); }
-        catch (error) { reject(error); }
+        statusElement.textContent = "Python files downloaded. Starting the Python engine…";
+        try {
+          if (typeof loadPyodide !== "function") throw new Error("The Pyodide loader was downloaded but could not be started.");
+          resolve(await loadPyodide({ indexURL: PYODIDE_CDN }));
+        } catch (error) {
+          reject(error);
+        }
       };
-      script.onerror = () => reject(new Error("Could not download Python. Check your internet connection and try again."));
+      script.onerror = () => reject(new Error("The Python engine could not be downloaded. Connect to the internet and try again."));
       document.head.appendChild(script);
-    }).catch(error => { pyodidePromise = null; throw error; });
+    }).catch(error => {
+      pyodidePromise = null;
+      throw error;
+    });
   }
   return pyodidePromise;
 }
-async function runPython(source, outputElement, statusElement, button) {
+function readProgramInput(inputElement) {
+  const raw = inputElement ? inputElement.value.replace(/\\r\\n?/g, "\\n") : "";
+  if (raw === "") return [];
+  const lines = raw.split("\\n");
+  if (lines[lines.length - 1] === "") lines.pop();
+  return lines;
+}
+async function runPython(source, inputElement, outputElement, statusElement, button) {
+  const code = source.trim();
+  if (!code) {
+    outputElement.textContent = "Write some Python code before running it.";
+    statusElement.textContent = "No code to run.";
+    return;
+  }
+  const originalLabel = button.textContent;
   button.disabled = true;
-  outputElement.textContent = "Running…";
+  button.textContent = "Running…";
+  outputElement.textContent = "Preparing Python…";
+  let stdout = "";
+  let stderr = "";
   try {
     const py = await getPythonRuntime(statusElement);
-    let output = "";
-    py.setStdout({ batched: text => { output += text; } });
-    py.setStderr({ batched: text => { output += text; } });
-    await py.runPythonAsync(source);
-    outputElement.textContent = output.trimEnd() || "(No output. Your code ran successfully.)";
-    statusElement.textContent = "Python is ready in your browser.";
+    const inputLines = readProgramInput(inputElement);
+    py.setStdout({ batched: line => { stdout += line + "\\n"; } });
+    py.setStderr({ batched: line => { stderr += line + "\\n"; } });
+    py.setStdin({
+      stdin: () => inputLines.length ? inputLines.shift() : undefined,
+      isatty: false
+    });
+    statusElement.textContent = "Running Python code in your browser…";
+    await py.runPythonAsync(code);
+    const result = stdout + (stderr ? (stdout ? "\\n" : "") + "Standard error:\\n" + stderr : "");
+    outputElement.textContent = result.trimEnd() || "(No output. Your code ran successfully.)";
+    statusElement.textContent = "Finished. Python ran successfully in your browser.";
   } catch (error) {
-    outputElement.textContent = String(error);
-    statusElement.textContent = "Could not run code. Check the message and try again.";
+    const message = error && error.message ? error.message : String(error);
+    const hint = /EOFError|EOF when reading a line/i.test(message)
+      ? "\\nTip: enter one line in Program input for every input() call, then run the code again."
+      : "";
+    const parts = [];
+    if (stdout.trim()) parts.push(stdout.trimEnd());
+    if (stderr.trim()) parts.push("Standard error:\\n" + stderr.trimEnd());
+    parts.push("Python error:\\n" + message + hint);
+    outputElement.textContent = parts.join("\\n\\n");
+    statusElement.textContent = "Execution stopped. Read the error above, correct the code or input, and try again.";
   } finally {
     button.disabled = false;
+    button.textContent = originalLabel;
   }
 }
 document.getElementById("runLessonCode").addEventListener("click", () =>
-  runPython(document.getElementById("lessonCode").value, document.getElementById("lessonOutput"), document.getElementById("pythonStatus"), document.getElementById("runLessonCode")));
+  runPython(document.getElementById("lessonCode").value, document.getElementById("lessonStdin"), document.getElementById("lessonOutput"), document.getElementById("pythonStatus"), document.getElementById("runLessonCode")));
 document.getElementById("runPracticeCode").addEventListener("click", () =>
-  runPython(document.getElementById("practiceInput").value, document.getElementById("practiceOutput"), document.getElementById("practiceStatus"), document.getElementById("runPracticeCode")));
+  runPython(document.getElementById("practiceInput").value, document.getElementById("practiceStdin"), document.getElementById("practiceOutput"), document.getElementById("practiceStatus"), document.getElementById("runPracticeCode")));
+document.getElementById("clearLessonOutput").addEventListener("click", () => {
+  document.getElementById("lessonOutput").textContent = "Output cleared.";
+});
+document.getElementById("clearPracticeOutput").addEventListener("click", () => {
+  document.getElementById("practiceOutput").textContent = "Output cleared.";
+});
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
   window.addEventListener("load", () => navigator.serviceWorker.register("./service-worker.js").catch(() => {}));
 }
