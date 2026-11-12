@@ -1,0 +1,35 @@
+name: Web quality checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  web-quality:
+    name: Validate lessons and playground code
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check JavaScript syntax
+        run: |
+          for file in app.js curriculum.js extended-lessons.js topic-extras.js workflows.js service-worker.js scripts/check-curriculum.mjs; do
+            node --check "$file"
+          done
+      - name: Validate curriculum, practice and Python examples
+        run: node scripts/check-curriculum.mjs
