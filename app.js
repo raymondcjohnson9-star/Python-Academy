@@ -180,9 +180,9 @@ async function getPythonRuntime(statusElement) {
   return pyodidePromise;
 }
 function readProgramInput(inputElement) {
-  const raw = inputElement ? inputElement.value.replace(/\\r\\n?/g, "\\n") : "";
+  const raw = inputElement ? inputElement.value.replace(/\r\n?/g, "\n") : "";
   if (raw === "") return [];
-  const lines = raw.split("\\n");
+  const lines = raw.split("\n");
   if (lines[lines.length - 1] === "") lines.pop();
   return lines;
 }
@@ -202,27 +202,27 @@ async function runPython(source, inputElement, outputElement, statusElement, but
   try {
     const py = await getPythonRuntime(statusElement);
     const inputLines = readProgramInput(inputElement);
-    py.setStdout({ batched: line => { stdout += line + "\\n"; } });
-    py.setStderr({ batched: line => { stderr += line + "\\n"; } });
+    py.setStdout({ batched: line => { stdout += line + "\n"; } });
+    py.setStderr({ batched: line => { stderr += line + "\n"; } });
     py.setStdin({
       stdin: () => inputLines.length ? inputLines.shift() : undefined,
       isatty: false
     });
     statusElement.textContent = "Running Python code in your browser…";
     await py.runPythonAsync(code);
-    const result = stdout + (stderr ? (stdout ? "\\n" : "") + "Standard error:\\n" + stderr : "");
+    const result = stdout + (stderr ? (stdout ? "\n" : "") + "Standard error:\n" + stderr : "");
     outputElement.textContent = result.trimEnd() || "(No output. Your code ran successfully.)";
     statusElement.textContent = "Finished. Python ran successfully in your browser.";
   } catch (error) {
     const message = error && error.message ? error.message : String(error);
     const hint = /EOFError|EOF when reading a line/i.test(message)
-      ? "\\nTip: enter one line in Program input for every input() call, then run the code again."
+      ? "\nTip: enter one line in Program input for every input() call, then run the code again."
       : "";
     const parts = [];
     if (stdout.trim()) parts.push(stdout.trimEnd());
-    if (stderr.trim()) parts.push("Standard error:\\n" + stderr.trimEnd());
-    parts.push("Python error:\\n" + message + hint);
-    outputElement.textContent = parts.join("\\n\\n");
+    if (stderr.trim()) parts.push("Standard error:\n" + stderr.trimEnd());
+    parts.push("Python error:\n" + message + hint);
+    outputElement.textContent = parts.join("\n\n");
     statusElement.textContent = "Execution stopped. Read the error above, correct the code or input, and try again.";
   } finally {
     button.disabled = false;
