@@ -19,7 +19,7 @@ const lessonBootstrap = appSource.slice(0, markerIndex);
 runInNewContext(lessonBootstrap + "\nglobalThis.__academyLessons = lessons;", context, { filename: "app-lessons.js" });
 
 const lessons = context.__academyLessons;
-const topics = context.pythonCurriculum.flatMap((level) => level.topics);
+const topics = Array.from(context.pythonCurriculum).flatMap((level) => Array.from(level.topics));
 assert.equal(topics.length, 91, "Expected 91 curriculum topics");
 assert.equal(lessons.length, topics.length, "Every curriculum topic should have a lesson entry");
 assert.deepEqual(Array.from(lessons, (lesson) => lesson.title), topics, "Lesson titles must match the curriculum order");
