@@ -54,3 +54,9 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .workflow-example{background:#f3f7f4;padding:8px 10px;border-radius:7px;color:#496354}
 .workflow-reset{font-size:10px;padding:9px 12px}
 @media(max-width:520px){.workflow-summary,.workflow-card{padding:15px}.workflow-card h2{font-size:16px}}
+
+.runner-input-label{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:14px 0 7px;font-size:11px;font-weight:800;color:#536057}
+.runner-input-label span{font-size:10px;font-weight:500;color:var(--muted);text-align:right}
+.runner-card .runner-stdin,.practice-panel .runner-stdin{min-height:58px;height:58px;resize:vertical;background:#f7faf7;color:var(--ink);font:12px/1.6 ui-monospace,monospace}
+.runner-actions .secondary-btn,.practice-actions .secondary-btn{padding:11px 13px}
+@media(max-width:520px){.runner-input-label{align-items:flex-start;flex-direction:column;gap:3px}.runner-input-label span{text-align:left}}
