@@ -10,6 +10,7 @@ context.window = context;
 for (const path of ["curriculum.js", "topic-extras.js", "extended-lessons.js", "workflows.js"]) {
   runInNewContext(await read(path), context, { filename: path });
 }
+context.topicExtras = context.window.topicExtras;
 
 const appSource = await read("app.js");
 const storageMarker = "\nconst STORAGE_KEY";
@@ -26,19 +27,20 @@ assert.deepEqual(Array.from(lessons, (lesson) => lesson.title), topics, "Lesson 
 assert.equal(context.topicExtras.length, lessons.length, "Every lesson must have practice extras");
 
 for (const [index, lesson] of lessons.entries()) {
-  assert.ok(lesson.desc && lesson.intro, \`Lesson \${index + 1} needs a description and introduction\`);
-  assert.ok(Array.isArray(lesson.sections) && lesson.sections.length >= 2, \`Lesson \${index + 1} needs at least two teaching sections\`);
-  assert.ok(typeof lesson.code === "string" && lesson.code.trim(), \`Lesson \${index + 1} needs a code example\`);
-  assert.ok(lesson.question && Array.isArray(lesson.options) && lesson.options.length >= 3, \`Lesson \${index + 1} needs a knowledge check\`);
-  assert.ok(Number.isInteger(lesson.answer) && lesson.answer >= 0 && lesson.answer < lesson.options.length, \`Lesson \${index + 1} has an invalid answer index\`);
+  const number = index + 1;
+  assert.ok(lesson.desc && lesson.intro, "Lesson " + number + " needs a description and introduction");
+  assert.ok(Array.isArray(lesson.sections) && lesson.sections.length >= 2, "Lesson " + number + " needs at least two teaching sections");
+  assert.ok(typeof lesson.code === "string" && lesson.code.trim(), "Lesson " + number + " needs a code example");
+  assert.ok(lesson.question && Array.isArray(lesson.options) && lesson.options.length >= 3, "Lesson " + number + " needs a knowledge check");
+  assert.ok(Number.isInteger(lesson.answer) && lesson.answer >= 0 && lesson.answer < lesson.options.length, "Lesson " + number + " has an invalid answer index");
   const extra = context.topicExtras[index];
-  assert.ok(extra.extra && Array.isArray(extra.tasks) && extra.tasks.length === 3, \`Lesson \${index + 1} needs three practice tasks\`);
+  assert.ok(extra.extra && Array.isArray(extra.tasks) && extra.tasks.length === 3, "Lesson " + number + " needs three practice tasks");
 }
 
 const workflowList = context.pythonAcademyWorkflows;
 assert.ok(Array.isArray(workflowList) && workflowList.length >= 6, "Expected the guided and real-world workflow collection");
 for (const flow of workflowList) {
-  assert.ok(flow.title && flow.category && Array.isArray(flow.steps) && flow.steps.length >= 3, \`Workflow \${flow.id} is incomplete\`);
+  assert.ok(flow.title && flow.category && Array.isArray(flow.steps) && flow.steps.length >= 3, "Workflow " + flow.id + " is incomplete");
 }
 
 assert.ok(appSource.includes("py.setStdin("), "The playground should provide Python standard input");
@@ -63,4 +65,4 @@ const pythonCheck = spawnSync("python3", ["-c", [
 if (pythonCheck.error) throw pythonCheck.error;
 assert.equal(pythonCheck.status, 0, pythonCheck.stderr || pythonCheck.stdout);
 
-console.log(\`Validated \${lessons.length} lessons, \${context.topicExtras.length} practice sets, \${workflowList.length} workflows and all Python example syntax.\`);
+console.log("Validated " + lessons.length + " lessons, " + context.topicExtras.length + " practice sets, " + workflowList.length + " workflows and all Python example syntax.");
