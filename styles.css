@@ -62,3 +62,15 @@ button:disabled{opacity:.55;cursor:not-allowed}
 @media(max-width:520px){.runner-input-label{align-items:flex-start;flex-direction:column;gap:3px}.runner-input-label span{text-align:left}}
 
 .runner-warning{background:#fff7e9;color:#77572a;border:1px solid #f2e2c4;border-radius:7px;padding:9px 11px;font-size:11px;line-height:1.5;margin:10px 0 13px}
+
+/* Output-checked practice for the original beginner lessons */
+.challenge-list{display:grid;gap:12px;margin-top:14px}
+.challenge-card{background:#fff;border:1px solid #dfe8e1;border-radius:10px;padding:14px}
+.challenge-card h3{font-size:13px;margin:0 0 7px;color:var(--ink)}
+.challenge-card>p{font-size:12px;line-height:1.6;color:var(--muted);margin:0 0 10px}
+.challenge-card .challenge-input{font-size:10px;color:#496354;background:#f1f6f2;padding:7px 9px;border-radius:6px}
+.challenge-editor{display:block;width:100%;min-height:108px;resize:vertical;padding:11px;border:1px solid #dce6de;border-radius:7px;background:#f7faf7;color:var(--ink);font:12px/1.6 ui-monospace,monospace;tab-size:4}
+.challenge-actions{display:flex;gap:9px;align-items:center;margin-top:9px}
+.challenge-feedback{white-space:pre-wrap;overflow-wrap:anywhere;background:#f4f7f4;border-radius:7px;padding:9px 11px;color:#496354;font:11px/1.6 ui-monospace,monospace;margin:9px 0 0;min-height:38px}
+.challenge-card .secondary-btn{padding:9px 13px}
+@media(max-width:520px){.challenge-card{padding:11px}.challenge-editor{min-height:120px}.challenge-actions .secondary-btn{width:100%}}
