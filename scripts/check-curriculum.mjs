@@ -86,8 +86,8 @@ for lesson_number, group in enumerate(data["beginner_challenges"], 1):
         if result.returncode != 0:
             print(f"Lesson {lesson_number}, exercise {exercise_number} failed: {result.stderr}", file=sys.stderr)
             raise SystemExit(1)
-        actual = result.stdout.replace("\\r\\n", "\\n").rstrip("\\n")
-        expected = challenge["expected"].replace("\\r\\n", "\\n").rstrip("\\n")
+        actual = result.stdout.rstrip(chr(10)).replace(chr(13), "")
+        expected = challenge["expected"].rstrip(chr(10)).replace(chr(13), "")
         if actual != expected or result.stderr:
             print(f"Lesson {lesson_number}, exercise {exercise_number}: expected {expected!r}, got {actual!r}; stderr={result.stderr!r}", file=sys.stderr)
             raise SystemExit(1)
