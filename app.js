@@ -148,7 +148,7 @@ async function checkBeginnerChallenge(lessonIndex,challengeIndex,editor,feedback
   py.setStderr({batched:line=>{stderr+=line;}});
   py.setStdin({stdin:()=>inputLines.length?inputLines.shift():undefined,isatty:false});
   await py.runPythonAsync("exec("+JSON.stringify(code)+", {})");
-  const normalise=value=>value.replace(/\\r\\n?/g,"\\n").replace(/\\n+$/,"");
+  const normalise=value=>value.replace(/\r\n?/g,"\n").replace(/\n+$/,"");
   const actual=normalise(stdout),expected=normalise(challenge.expected);
   if(!stderr.trim()&&actual===expected){
    const checks=(state.practicePassed[lessonIndex]||[]).slice();
@@ -157,12 +157,12 @@ async function checkBeginnerChallenge(lessonIndex,challengeIndex,editor,feedback
    feedback.textContent="Passed! Your program produced the expected output.";
    button.textContent="Passed ✓";
   }else{
-   feedback.textContent="Not yet. Review your code and try again.\\nExpected output:\\n"+challenge.expected+"\\nYour output:\\n"+(actual||"(no output)")+(stderr.trim()?"\\nStandard error:\\n"+stderr.trim():"");
+   feedback.textContent="Not yet. Review your code and try again.\nExpected output:\n"+challenge.expected+"\nYour output:\n"+(actual||"(no output)")+(stderr.trim()?"\nStandard error:\n"+stderr.trim():"");
    button.textContent=originalLabel;
   }
  }catch(error){
   const message=error&&error.message?error.message:String(error);
-  feedback.textContent="Python could not complete this check.\\n"+message;
+  feedback.textContent="Python could not complete this check.\n"+message;
   button.textContent=originalLabel;
  }finally{
   button.disabled=false;
@@ -185,7 +185,7 @@ function renderTopicExercises(index){
    const title=document.createElement("h3");title.textContent="Exercise "+(i+1);
    const prompt=document.createElement("p");prompt.textContent=challenge.prompt;
    const inputNote=document.createElement("p");inputNote.className="challenge-input";
-   if(challenge.stdin)inputNote.textContent="Test input supplied: "+challenge.stdin.replace(/\\n/g," ↵ ");
+   if(challenge.stdin)inputNote.textContent="Test input supplied: "+challenge.stdin.replace(/\n/g," ↵ ");
    const editor=document.createElement("textarea");editor.className="challenge-editor";editor.spellcheck=false;editor.setAttribute("aria-label","Python solution for exercise "+(i+1));editor.value=(state.practiceCode[index]||[])[i]??challenge.starter;
    const actions=document.createElement("div");actions.className="challenge-actions";
    const button=document.createElement("button");button.className="secondary-btn";button.textContent=(state.practicePassed[index]||[])[i]?"Passed ✓":"Check answer";
