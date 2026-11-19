@@ -10,6 +10,7 @@ A beginner-friendly, non-AI Python learning app. It teaches with structured less
 - Resume learning and local progress saved in the browser.
 - In-browser Python execution powered by Pyodide, with captured standard output/error and a separate multi-line input area for Python input() calls.
 - Six guided workflows for learning, practice, review, project planning, debugging and finishing projects.
+- Output-checked Python practice for all 36 exercises across the first 12 beginner lessons. Each of those lessons requires all three checks and its knowledge check before the next topic unlocks.
 - Installable progressive web app shell with offline caching of the lesson interface and static assets.
 - GitHub Actions quality checks for JavaScript syntax, curriculum consistency, practice-set completeness and Python example syntax.
 
@@ -23,4 +24,4 @@ The lesson interface and cached static assets can be available offline after the
 Progress is stored in localStorage on the current browser/device. It is not synchronized between devices and may be cleared if browser data is removed.
 
 ## Current scope and next work
-This is a learning MVP, not yet a complete reference or fully authored course for every topic. The later 79 lesson entries use introductory templates and still need detailed sub-lessons, topic-specific worked examples, more than one knowledge-check question and stronger practice assessment. Browser end-to-end testing and accessibility checks are still needed. Python code currently runs on the page thread, so learners should avoid endless loops; an execution stop control is not implemented yet.
+This is a learning MVP, not yet a complete reference or fully authored course for every topic. The first 12 beginner lessons now include three output-checked exercises each. These browser-side checks compare printed output; they do not judge code style or prove authorship. The later 79 lesson entries remain introductory starter lessons with self-checked practice tasks, and still need detailed sub-lessons, topic-specific worked examples, multiple knowledge-check questions and graded practice. Browser end-to-end testing and accessibility checks are still needed. Python code currently runs on the page thread, so learners should avoid endless loops; an execution stop control is not implemented yet.
