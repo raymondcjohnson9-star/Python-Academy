@@ -28,7 +28,7 @@ jobs:
           python-version: "3.12"
       - name: Check JavaScript syntax
         run: |
-          for file in app.js curriculum.js extended-lessons.js topic-extras.js workflows.js service-worker.js scripts/check-curriculum.mjs; do
+          for file in app.js curriculum.js extended-lessons.js beginner-challenges.js topic-extras.js workflows.js service-worker.js scripts/check-curriculum.mjs; do
             node --check "$file"
           done
       - name: Validate curriculum, practice and Python examples
