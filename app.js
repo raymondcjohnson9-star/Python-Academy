@@ -20,7 +20,7 @@ let currentLesson = 0;
 let selectedAnswer = null;
 let answerCorrect = false;
 let taskChecks = [];
-function loadState(){try{const s=JSON.parse(localStorage.getItem(STORAGE_KEY))||{};return {completed:Array.isArray(s.completed)?s.completed:[],lastLesson:Number.isInteger(s.lastLesson)?s.lastLesson:0,practiceDone:s.practiceDone||{},workflowDone:s.workflowDone||{}}}catch{return {completed:[],lastLesson:0,practiceDone:{},workflowDone:{}}}}
+function loadState(){try{const s=JSON.parse(localStorage.getItem(STORAGE_KEY))||{};return {completed:Array.isArray(s.completed)?s.completed:[],lastLesson:Number.isInteger(s.lastLesson)?s.lastLesson:0,practiceDone:s.practiceDone||{},practicePassed:s.practicePassed||{},practiceCode:s.practiceCode||{},workflowDone:s.workflowDone||{}}}catch{return {completed:[],lastLesson:0,practiceDone:{},practicePassed:{},practiceCode:{},workflowDone:{}}}}
 function saveState(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));renderProgress()}
 function isUnlocked(index){return index===0||state.completed.includes(index-1)}
 function firstIncomplete(){return lessons.findIndex((_,i)=>!state.completed.includes(i))}
@@ -111,25 +111,116 @@ function openLesson(index){
  let body="";l.sections.forEach(s=>body+='<h2>'+s[0]+'</h2><p>'+s[1]+'</p>');body+='<pre class="code-block"><code>'+escapeHtml(l.code)+'</code></pre><p class="callout">'+l.explain+'</p><p>Take a moment to type the example yourself and change a value to see what happens.</p>';document.getElementById("lessonBody").innerHTML=body;renderTopicExercises(index);document.getElementById("lessonCode").value=l.code;document.getElementById("lessonStdin").value=/\binput\s*\(/.test(l.code)?"Learner":"";document.getElementById("lessonOutput").textContent="Your output will appear here.";document.getElementById("pythonStatus").textContent="Ready when you are. The first run needs an internet connection.";document.getElementById("runLessonCode").disabled=false;
  document.getElementById("quizQuestion").textContent=l.question;const opts=document.getElementById("quizOptions");opts.innerHTML="";
  l.options.forEach((o,i)=>{const b=document.createElement("button");b.className="quiz-option";b.textContent=o;b.addEventListener("click",()=>{selectedAnswer=i;answerCorrect=false;opts.querySelectorAll("button").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");document.getElementById("quizFeedback").textContent="";updateTaskGate()});opts.appendChild(b)});
- document.getElementById("quizFeedback").textContent="";document.getElementById("checkAnswer").disabled=false;document.getElementById("completeLesson").disabled=!state.completed.includes(index)&&!(selectedAnswer===l.answer&&taskChecks.length===3&&taskChecks.every(Boolean));document.getElementById("completeLesson").textContent=state.completed.includes(index)?"Completed ✓":"Complete lesson ✓";
+ document.getElementById("quizFeedback").textContent="";document.getElementById("checkAnswer").disabled=false;document.getElementById("completeLesson").disabled=!state.completed.includes(index)&&!canCompleteCurrentLesson();document.getElementById("completeLesson").textContent=state.completed.includes(index)?"Completed ✓":"Complete lesson ✓";
  document.getElementById("lessonProgressBar").style.width=Math.round(state.completed.length/lessons.length*100)+"%";document.getElementById("lessonProgressText").textContent=state.completed.length+" of "+lessons.length+" lessons completed";
  document.getElementById("previousLesson").disabled=index===0;
 }
 
+function isPracticeComplete(index){
+ const challenges=window.pythonAcademyBeginnerChallenges&&window.pythonAcademyBeginnerChallenges[index];
+ if(challenges){
+  const passed=state.practicePassed[index]||[];
+  return challenges.every((_,i)=>passed[i]===true);
+ }
+ const checks=state.practiceDone[index]||[];
+ return checks.length===3&&checks.every(Boolean);
+}
+function canCompleteCurrentLesson(){
+ return answerCorrect&&selectedAnswer===lessons[currentLesson].answer&&isPracticeComplete(currentLesson);
+}
+async function checkBeginnerChallenge(lessonIndex,challengeIndex,editor,feedback,button){
+ const challenge=window.pythonAcademyBeginnerChallenges[lessonIndex][challengeIndex];
+ const code=editor.value.trim();
+ if(!code){feedback.textContent="Write your Python solution before checking it.";return;}
+ const originalLabel=button.textContent;
+ button.disabled=true;button.textContent="Checking…";
+ feedback.textContent="Loading Python if needed, then checking your output…";
+ state.practiceCode[lessonIndex]=state.practiceCode[lessonIndex]||[];
+ state.practiceCode[lessonIndex][challengeIndex]=editor.value;
+ saveState();
+ let passed=false;
+ try{
+  const status={textContent:""};
+  const py=await getPythonRuntime(status);
+  const inputLines=readProgramInput({value:challenge.stdin||""});
+  let stdout="",stderr="";
+  py.setStdout({batched:line=>{stdout+=line;}});
+  py.setStderr({batched:line=>{stderr+=line;}});
+  py.setStdin({stdin:()=>inputLines.length?inputLines.shift():undefined,isatty:false});
+  await py.runPythonAsync("exec("+JSON.stringify(code)+", {})");
+  const normalise=value=>value.replace(/\\r\\n?/g,"\\n").replace(/\\n+$/,"");
+  const actual=normalise(stdout),expected=normalise(challenge.expected);
+  if(!stderr.trim()&&actual===expected){
+   const checks=(state.practicePassed[lessonIndex]||[]).slice();
+   checks[challengeIndex]=true;state.practicePassed[lessonIndex]=checks;
+   passed=true;
+   feedback.textContent="Passed! Your program produced the expected output.";
+   button.textContent="Passed ✓";
+  }else{
+   feedback.textContent="Not yet. Review your code and try again.\\nExpected output:\\n"+challenge.expected+"\\nYour output:\\n"+(actual||"(no output)")+(stderr.trim()?"\\nStandard error:\\n"+stderr.trim():"");
+   button.textContent=originalLabel;
+  }
+ }catch(error){
+  const message=error&&error.message?error.message:String(error);
+  feedback.textContent="Python could not complete this check.\\n"+message;
+  button.textContent=originalLabel;
+ }finally{
+  button.disabled=false;
+  saveState();
+  updateTaskGate();
+ }
+}
 function renderTopicExercises(index){
  const detail=topicExtras[index],body=document.getElementById("lessonBody");
  const heading=document.createElement("h2");heading.textContent="Go deeper";
  const paragraph=document.createElement("p");paragraph.textContent=detail.extra;body.append(heading,paragraph);
  const panel=document.createElement("section");panel.className="topic-practice";
- panel.innerHTML='<p class="eyebrow">PRACTICE BEFORE MOVING ON</p><h2>Exercises for this topic</h2><p class="muted">Try each task in the Python playground above. Tick it after you have attempted it.</p><div id="topicTasks"></div><p id="taskProgress" class="task-progress"></p>';
+ const challenges=window.pythonAcademyBeginnerChallenges&&window.pythonAcademyBeginnerChallenges[index];
+ if(challenges){
+  panel.innerHTML='<p class="eyebrow">GRADED BEGINNER PRACTICE</p><h2>Prove what you can do</h2><p class="muted">Write a solution for each task and select Check answer. Your code runs in the browser and is checked against the expected output. The first run needs internet to load Python.</p><div id="topicTasks" class="challenge-list"></div><p id="taskProgress" class="task-progress"></p>';
+  body.appendChild(panel);
+  const host=panel.querySelector("#topicTasks");
+  challenges.forEach((challenge,i)=>{
+   const card=document.createElement("article");card.className="challenge-card";
+   const title=document.createElement("h3");title.textContent="Exercise "+(i+1);
+   const prompt=document.createElement("p");prompt.textContent=challenge.prompt;
+   const inputNote=document.createElement("p");inputNote.className="challenge-input";
+   if(challenge.stdin)inputNote.textContent="Test input supplied: "+challenge.stdin.replace(/\\n/g," ↵ ");
+   const editor=document.createElement("textarea");editor.className="challenge-editor";editor.spellcheck=false;editor.setAttribute("aria-label","Python solution for exercise "+(i+1));editor.value=(state.practiceCode[index]||[])[i]??challenge.starter;
+   const actions=document.createElement("div");actions.className="challenge-actions";
+   const button=document.createElement("button");button.className="secondary-btn";button.textContent=(state.practicePassed[index]||[])[i]?"Passed ✓":"Check answer";
+   const feedback=document.createElement("pre");feedback.className="challenge-feedback";feedback.setAttribute("aria-live","polite");feedback.textContent=(state.practicePassed[index]||[])[i]?"Passed! Your program produced the expected output.":"Your result will appear here.";
+   button.addEventListener("click",()=>checkBeginnerChallenge(index,i,editor,feedback,button));
+   editor.addEventListener("input",()=>{
+    const passed=(state.practicePassed[index]||[]).slice();
+    if(passed[i]){passed[i]=false;state.practicePassed[index]=passed;button.textContent="Check answer";feedback.textContent="Code changed. Run the check again to earn this pass.";saveState();updateTaskGate();}
+   });
+   editor.addEventListener("change",()=>{
+    state.practiceCode[index]=state.practiceCode[index]||[];
+    state.practiceCode[index][i]=editor.value;
+    saveState();
+   });
+   actions.append(button);
+   card.append(title,prompt);
+   if(challenge.stdin)card.append(inputNote);
+   card.append(editor,actions,feedback);host.append(card);
+  });
+  updateTaskGate();
+  return;
+ }
+ panel.innerHTML='<p class="eyebrow">PRACTICE BEFORE MOVING ON</p><h2>Exercises for this topic</h2><p class="muted">Try each task in the Python playground above. Tick it after you have attempted it. These later-course tasks are currently self-checked, not automatically graded.</p><div id="topicTasks"></div><p id="taskProgress" class="task-progress"></p>';
  body.appendChild(panel);
  const host=panel.querySelector("#topicTasks");
  detail.tasks.forEach((task,i)=>{const label=document.createElement("label");label.className="task-item";const input=document.createElement("input");input.type="checkbox";input.checked=!!taskChecks[i];const span=document.createElement("span");span.textContent=task;input.addEventListener("change",()=>{taskChecks[i]=input.checked;state.practiceDone[index]=taskChecks.slice();saveState();updateTaskGate()});label.append(input,span);host.appendChild(label)});
  updateTaskGate();
 }
 function updateTaskGate(){
- const count=taskChecks.filter(Boolean).length,p=document.getElementById("taskProgress");if(p)p.textContent=count+" of 3 exercises attempted";
- const button=document.getElementById("completeLesson");if(button)button.disabled=state.completed.includes(currentLesson)?false:!(answerCorrect&&count===3);
+ const challenges=window.pythonAcademyBeginnerChallenges&&window.pythonAcademyBeginnerChallenges[currentLesson];
+ const count=challenges?(state.practicePassed[currentLesson]||[]).filter(Boolean).length:taskChecks.filter(Boolean).length;
+ const p=document.getElementById("taskProgress");
+ if(p)p.textContent=count+" of 3 "+(challenges?"practice checks passed":"exercises attempted");
+ const button=document.getElementById("completeLesson");
+ if(button)button.disabled=state.completed.includes(currentLesson)?false:!canCompleteCurrentLesson();
 }
 
 function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
@@ -139,7 +230,7 @@ document.getElementById("resumeBtn").addEventListener("click",()=>openLesson(res
 document.getElementById("backToCourse").addEventListener("click",()=>showView("course"));
 document.getElementById("previousLesson").addEventListener("click",()=>{if(currentLesson>0)openLesson(currentLesson-1)});
 document.getElementById("checkAnswer").addEventListener("click",()=>{const l=lessons[currentLesson],f=document.getElementById("quizFeedback");if(selectedAnswer===null){f.textContent="Choose an answer first.";f.style.color="#a36b25";return}if(selectedAnswer===l.answer){answerCorrect=true;f.textContent="Correct! You understand this idea.";f.style.color="#176b48";updateTaskGate()}else{f.textContent="Not quite. Review the lesson and try again.";f.style.color="#b34d42"}});
-document.getElementById("completeLesson").addEventListener("click",()=>{if(!state.completed.includes(currentLesson)){if(selectedAnswer!==lessons[currentLesson].answer||taskChecks.length!==3||!taskChecks.every(Boolean))return;state.completed.push(currentLesson);state.completed.sort((a,b)=>a-b)}const next=firstIncomplete();state.lastLesson=next===-1?currentLesson:next;saveState();if(next!==-1&&next!==currentLesson)openLesson(next);else{showView("course")}});
+document.getElementById("completeLesson").addEventListener("click",()=>{if(!state.completed.includes(currentLesson)){if(!canCompleteCurrentLesson())return;state.completed.push(currentLesson);state.completed.sort((a,b)=>a-b)}const next=firstIncomplete();state.lastLesson=next===-1?currentLesson:next;saveState();if(next!==-1&&next!==currentLesson)openLesson(next);else{showView("course")}});
 document.getElementById("showHint").addEventListener("click",()=>document.getElementById("practiceHint").classList.toggle("hidden"));
 document.getElementById("showSolution").addEventListener("click",()=>document.getElementById("practiceSolution").classList.toggle("hidden"));
 document.getElementById("menuBtn").addEventListener("click",()=>document.getElementById("sidebar").classList.toggle("open"));
@@ -202,8 +293,8 @@ async function runPython(source, inputElement, outputElement, statusElement, but
   try {
     const py = await getPythonRuntime(statusElement);
     const inputLines = readProgramInput(inputElement);
-    py.setStdout({ batched: line => { stdout += line + "\n"; } });
-    py.setStderr({ batched: line => { stderr += line + "\n"; } });
+    py.setStdout({ batched: line => { stdout += line; } });
+    py.setStderr({ batched: line => { stderr += line; } });
     py.setStdin({
       stdin: () => inputLines.length ? inputLines.shift() : undefined,
       isatty: false
