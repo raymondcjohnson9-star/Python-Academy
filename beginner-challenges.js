@@ -61,4 +61,32 @@ window.pythonAcademyBeginnerChallenges = [
 {prompt:"Add a greeting method to Student and display the greeting for Ada.",solution:"class Student:\n    def __init__(self, name):\n        self.name = name\n    def greet(self):\n        return \"Hello, \" + self.name\nstudent = Student(\"Ada\")\nprint(student.greet())",starter:"# Define __init__ and a method that returns a greeting",stdin:"",expected:"Hello, Ada"},
 {prompt:"Create two Student objects and display both greetings, for Ada and Ben.",solution:"class Student:\n    def __init__(self, name):\n        self.name = name\n    def greet(self):\n        return \"Hello, \" + self.name\nstudents = [Student(\"Ada\"), Student(\"Ben\")]\nfor student in students:\n    print(student.greet())",starter:"# Create a Student class with a greeting method, then two objects",stdin:"",expected:"Hello, Ada\nHello, Ben"}
 ]
+// Graded practice completing the Beginner level (topics 13–17).
+window.pythonAcademyBeginnerChallenges.push(
+[
+{prompt:"Create a tuple of three numbers and display its last item.",solution:"values = (4, 8, 12)\nprint(values[-1])",starter:"# Create a tuple and access its last item",stdin:"",expected:"12"},
+{prompt:"Create a set with a repeated value and display its unique item count.",solution:"values = {1, 2, 2, 3}\nprint(len(values))",starter:"# Create a set and use len()",stdin:"",expected:"3"},
+{prompt:"Display the shared values of two sets.",solution:"a = {1, 2, 3}\nb = {2, 3, 4}\nprint(sorted(a & b))",starter:"# Use & and sorted()",stdin:"",expected:"[2, 3]"}
+],
+[
+{prompt:"Import math and display the square root of 49.",solution:"import math\nprint(math.sqrt(49))",starter:"# Import math and call sqrt()",stdin:"",expected:"7.0"},
+{prompt:"Import pi from math and round it to three decimal places.",solution:"from math import pi\nprint(round(pi, 3))",starter:"# Import pi and use round()",stdin:"",expected:"3.142"},
+{prompt:"Display the ceiling of 4.2 using math.",solution:"import math\nprint(math.ceil(4.2))",starter:"# Use math.ceil()",stdin:"",expected:"5"}
+],
+[
+{prompt:"Strip surrounding spaces from the word Python.",solution:"word = \"  Python  \"\nprint(word.strip())",starter:"# Use strip()",stdin:"",expected:"Python"},
+{prompt:"Convert Academy to lowercase.",solution:"print(\"Academy\".lower())",starter:"# Use lower()",stdin:"",expected:"academy"},
+{prompt:"Append banana to a fruit list and display it.",solution:"fruits = [\"apple\", \"pear\"]\nfruits.append(\"banana\")\nprint(fruits)",starter:"# Use append()",stdin:"",expected:"['apple', 'pear', 'banana']"}
+],
+[
+{prompt:"Fix the misspelled variable so the code displays 12.",solution:"total = 5 + 7\nprint(total)",starter:"total = 5 + 7\nprint(totla)",stdin:"",expected:"12"},
+{prompt:"Fix the index so the code displays the second item, 20.",solution:"numbers = [10, 20, 30]\nprint(numbers[1])",starter:"numbers = [10, 20, 30]\nprint(numbers[3])",stdin:"",expected:"20"},
+{prompt:"Convert the text 8 to an integer before adding 2.",solution:"number = int(\"8\")\nprint(number + 2)",starter:"number = \"8\"\nprint(number + 2)",stdin:"",expected:"10"}
+],
+[
+{prompt:"Ask two quiz questions and display the number correct. Inputs are 5 and Abuja.",solution:"questions = [(\"2 + 3\", \"5\"), (\"Capital of Nigeria\", \"Abuja\")]\nscore = 0\nfor question, answer in questions:\n    print(question)\n    if input().strip().lower() == answer.lower():\n        score += 1\nprint(\"Score:\", score, \"of\", len(questions))",starter:"# Use question-answer pairs, a loop, input(), and score",stdin:"5\nAbuja",expected:"2 + 3\nCapital of Nigeria\nScore: 2 of 2"},
+{prompt:"Read a number and display Even or Odd. Test input is 9.",solution:"number = int(input())\nif number % 2 == 0:\n    print(\"Even\")\nelse:\n    print(\"Odd\")",starter:"# Convert input and check number % 2",stdin:"9",expected:"Odd"},
+{prompt:"Count the words in 'learn Python daily'.",solution:"sentence = \"learn Python daily\"\nprint(len(sentence.split()))",starter:"# Use split() and len()",stdin:"",expected:"3"}
+]
+);
 ];
