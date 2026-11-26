@@ -10,7 +10,7 @@ A beginner-friendly, non-AI Python learning app. It teaches with structured less
 - Resume learning and local progress saved in the browser.
 - In-browser Python execution powered by Pyodide, with captured standard output/error and a separate multi-line input area for Python input() calls.
 - Six guided workflows for learning, practice, review, project planning, debugging and finishing projects.
-- Output-checked Python practice for all 36 exercises across the first 12 beginner lessons. Each of those lessons requires all three checks and its knowledge check before the next topic unlocks.
+- Output-checked Python practice for all 51 exercises across all 17 Beginner lessons. Each Beginner lesson requires all three checks and its knowledge check before the next topic unlocks. The final five Beginner topics now have authored teaching sections and graded practice.
 - Installable progressive web app shell with offline caching of the lesson interface and static assets.
 - GitHub Actions quality checks for JavaScript syntax, curriculum consistency, practice-set completeness and Python example syntax.
 
