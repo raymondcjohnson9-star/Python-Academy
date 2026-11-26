@@ -61,6 +61,7 @@ window.pythonAcademyBeginnerChallenges = [
 {prompt:"Add a greeting method to Student and display the greeting for Ada.",solution:"class Student:\n    def __init__(self, name):\n        self.name = name\n    def greet(self):\n        return \"Hello, \" + self.name\nstudent = Student(\"Ada\")\nprint(student.greet())",starter:"# Define __init__ and a method that returns a greeting",stdin:"",expected:"Hello, Ada"},
 {prompt:"Create two Student objects and display both greetings, for Ada and Ben.",solution:"class Student:\n    def __init__(self, name):\n        self.name = name\n    def greet(self):\n        return \"Hello, \" + self.name\nstudents = [Student(\"Ada\"), Student(\"Ben\")]\nfor student in students:\n    print(student.greet())",starter:"# Create a Student class with a greeting method, then two objects",stdin:"",expected:"Hello, Ada\nHello, Ben"}
 ]
+];
 // Graded practice completing the Beginner level (topics 13–17).
 window.pythonAcademyBeginnerChallenges.push(
 [
@@ -89,4 +90,3 @@ window.pythonAcademyBeginnerChallenges.push(
 {prompt:"Count the words in 'learn Python daily'.",solution:"sentence = \"learn Python daily\"\nprint(len(sentence.split()))",starter:"# Use split() and len()",stdin:"",expected:"3"}
 ]
 );
-];
