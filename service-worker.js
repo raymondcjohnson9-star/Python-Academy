@@ -1,5 +1,5 @@
-const CACHE_NAME = "python-academy-v8";
-const APP_FILES = ["./", "./index.html", "./styles.css", "./app.js", "./topic-extras.js", "./curriculum.js", "./extended-lessons.js", "./beginner-challenges.js", "./workflows.js", "./manifest.json"];
+const CACHE_NAME = "python-academy-v9";
+const APP_FILES = ["./", "./index.html", "./styles.css", "./app.js", "./topic-extras.js", "./curriculum.js", "./extended-lessons.js", "./beginner-authored.js", "./beginner-challenges.js", "./workflows.js", "./manifest.json"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES)));
   self.skipWaiting();
