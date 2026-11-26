@@ -7,7 +7,7 @@ const read = (path) => readFile(new URL("../" + path, import.meta.url), "utf8");
 const context = { console };
 context.window = context;
 
-for (const path of ["curriculum.js", "topic-extras.js", "extended-lessons.js", "beginner-challenges.js", "workflows.js"]) {
+for (const path of ["curriculum.js", "topic-extras.js", "extended-lessons.js", "beginner-authored.js", "beginner-challenges.js", "workflows.js"]) {
   runInNewContext(await read(path), context, { filename: path });
 }
 context.topicExtras = context.window.topicExtras;
@@ -37,7 +37,7 @@ for (const [index, lesson] of lessons.entries()) {
 }
 
 const beginnerChallenges = context.pythonAcademyBeginnerChallenges;
-assert.equal(beginnerChallenges.length, 12, "Expected graded challenges for the 12 original beginner lessons");
+assert.equal(beginnerChallenges.length, 17, "Expected graded challenges for all 17 Beginner lessons");
 let gradedChallengeCount = 0;
 for (const [lessonIndex, challenges] of beginnerChallenges.entries()) {
   assert.equal(challenges.length, 3, "Beginner lesson " + (lessonIndex + 1) + " must have three graded exercises");
